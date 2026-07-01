@@ -3,15 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard Growth Almahal</title>
+  <title>Almahal Growth Review</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">Almahal Growth Dashboard</p>
-      <h1>Ventas por sede, mes, semana y asesora</h1>
+  <header class="topbar premium-topbar">
+    <div class="brand-lockup">
+      <span class="brand-mark">A</span>
+      <div>
+        <p class="eyebrow">Almahal Spa x LlamaLeads</p>
+        <h1>Growth Command Center</h1>
+      </div>
     </div>
+    <nav class="view-switch" aria-label="Vistas del tablero">
+      <button class="view-button active" type="button" data-view="review">Growth Review</button>
+      <button class="view-button" type="button" data-view="lab">Growth Lab</button>
+    </nav>
     <div class="top-actions">
       <button id="resetFilters" type="button" title="Limpiar todos los filtros">Reset</button>
       <button id="exportCsv" type="button" title="Exportar tabla filtrada">CSV</button>
@@ -19,184 +26,212 @@
   </header>
 
   <main>
-    <section class="filters" aria-label="Filtros">
+    <section class="filters premium-filters" aria-label="Filtros">
       <label>Sede<select id="sedeFilter"></select></label>
       <label>Mes<select id="monthFilter"></select></label>
       <label>Semana<select id="weekFilter"></select></label>
       <label>Asesora<select id="advisorFilter"></select></label>
-      <label>Categoría / servicio<select id="categoryFilter"></select></label>
+      <label>Servicio<select id="categoryFilter"></select></label>
       <label>Desde<input id="startDateFilter" type="date"></label>
       <label>Hasta<input id="endDateFilter" type="date"></label>
       <label>Cliente<input id="clientSearch" type="search" placeholder="Buscar cliente"></label>
     </section>
 
-    <section id="kpis" class="kpi-grid" aria-label="Indicadores principales"></section>
-
-    <section class="panel june-yoy-panel">
-      <div class="panel-head">
-        <h2>Junio 2025 vs junio 2026</h2>
-        <span>lectura comparativa del mes cerrado</span>
-      </div>
-      <div id="juneYoy" class="june-yoy"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Lifecycle de ventas</h2>
-        <span>nuevos, continuidad, reactivación y resurrección</span>
-      </div>
-      <div id="lifecycleTop" class="lifecycle-top"></div>
-    </section>
-
-    <section class="grid two">
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Venta por sede</h2>
-          <span id="recordCount"></span>
+    <section id="reviewView" class="dashboard-view active" data-view-panel="review">
+      <section class="review-hero">
+        <div>
+          <p class="eyebrow">Junio 2026 · Surco + San Isidro</p>
+          <h2>Almahal Growth Review</h2>
+          <p class="review-copy">Vista ejecutiva para entender el cierre, el crecimiento y las decisiones comerciales del mes.</p>
         </div>
-        <div id="storeChart" class="chart bars"></div>
-      </article>
-      <article class="panel">
+        <div id="kpis" class="kpi-grid executive-kpis" aria-label="Indicadores principales"></div>
+      </section>
+
+      <section class="review-main">
+        <article class="panel hero-chart">
+          <div class="panel-head">
+            <h2>Evolución mensual</h2>
+            <span>ventas y tendencia histórica</span>
+          </div>
+          <div id="monthChart" class="chart bars"></div>
+        </article>
+        <article class="panel executive-card">
+          <div class="panel-head">
+            <h2>Lectura ejecutiva</h2>
+            <span>click para desplegar</span>
+          </div>
+          <div id="insights" class="insights"></div>
+        </article>
+      </section>
+
+      <section class="panel june-yoy-panel">
+        <div class="panel-head">
+          <h2>Junio 2025 vs junio 2026</h2>
+          <span>lectura comparativa del mes cerrado</span>
+        </div>
+        <div id="juneYoy" class="june-yoy"></div>
+      </section>
+
+      <section class="review-main compact-review">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Venta por sede</h2>
+            <span id="recordCount"></span>
+          </div>
+          <div id="storeChart" class="chart bars"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Lifecycle de ventas</h2>
+            <span>nuevos, continuidad, reactivación y resurrección</span>
+          </div>
+          <div id="lifecycleTop" class="lifecycle-top"></div>
+        </article>
+      </section>
+
+      <section class="panel">
         <div class="panel-head">
           <h2>Tendencia diaria vs año pasado</h2>
           <span id="dateRange"></span>
         </div>
         <div id="dailyChart" class="chart line"></div>
-      </article>
+      </section>
     </section>
 
-    <section class="grid two">
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Ventas por mes</h2>
-          <span>comparativo</span>
+    <section id="labView" class="dashboard-view" data-view-panel="lab">
+      <section class="lab-hero">
+        <div>
+          <p class="eyebrow">Growth Lab</p>
+          <h2>Análisis accionable</h2>
+          <p class="review-copy">Consulta, filtra, exporta y baja oportunidades por asesora, servicio, cliente y conversación.</p>
         </div>
-        <div id="monthChart" class="chart bars"></div>
-      </article>
-      <article class="panel">
+        <article class="query-card">
+          <label for="askInput">Pregunta al tablero</label>
+          <div class="query-box">
+            <input id="askInput" type="search" placeholder="Ej: ¿Cómo le fue a faciales en junio?">
+            <button id="runAsk" type="button">Analizar</button>
+            <button id="queryExport" type="button">CSV</button>
+          </div>
+          <div id="queryAnswer" class="query-answer"></div>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="panel advisor-panel">
+          <div class="panel-head">
+            <h2>Asesoras</h2>
+            <span>ventas, conversaciones y cierre</span>
+          </div>
+          <div id="advisorHighlights" class="advisor-highlights"></div>
+          <div id="advisorDrivers" class="advisor-drivers"></div>
+          <div class="table-wrap advisor-table-wrap">
+            <table id="advisorTable"></table>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel advisor-room">
+        <div class="panel-head">
+          <h2>Sala de asesoras</h2>
+          <span>feedback listo para reunión comercial</span>
+        </div>
+        <div id="advisorRoom" class="advisor-room-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Calidad de conversaciones</h2>
+          <span>chat score, discovery, CTA y correlación con ventas</span>
+        </div>
+        <div id="qualityDashboard" class="quality-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Growth de clientes</h2>
+          <span>LTV, recompra, frecuencia y churn</span>
+        </div>
+        <div id="customerGrowth" class="growth-grid"></div>
+      </section>
+
+      <section class="grid two">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Categorías</h2>
+            <span>participación</span>
+          </div>
+          <div id="categoryChart" class="chart bars"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Productos top</h2>
+            <span>por venta</span>
+          </div>
+          <div id="productChart" class="chart bars"></div>
+        </article>
+      </section>
+
+      <section class="grid two">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Día de semana</h2>
+            <span>demanda comercial</span>
+          </div>
+          <div id="weekdayChart" class="chart bars"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Hora de venta</h2>
+            <span>franjas fuertes</span>
+          </div>
+          <div id="hourChart" class="chart bars"></div>
+        </article>
+      </section>
+
+      <section class="grid two">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Clientes top</h2>
+            <span>valor y frecuencia</span>
+          </div>
+          <div class="table-wrap">
+            <table id="clientTable"></table>
+          </div>
+        </article>
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Top meses de venta</h2>
+            <span>ranking histórico según filtros activos</span>
+          </div>
+          <div id="topMonths" class="top-months"></div>
+        </article>
+      </section>
+
+      <section class="grid two">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Tendencia anual de ventas</h2>
+            <span>histórico por año</span>
+          </div>
+          <div id="yearTrendChart" class="chart annual-trend"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Clientes nuevos por año</h2>
+            <span>primera compra por cliente único</span>
+          </div>
+          <div id="newClientsYearChart" class="chart annual-trend"></div>
+        </article>
+      </section>
+
+      <section class="panel">
         <div class="panel-head">
           <h2>Ventas por semana</h2>
           <span>lunes-domingo</span>
         </div>
         <div id="weekChart" class="chart bars"></div>
-      </article>
+      </section>
     </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Tendencia anual de ventas</h2>
-        <span>histórico por año</span>
-      </div>
-      <div id="yearTrendChart" class="chart annual-trend"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Top meses de venta</h2>
-        <span>ranking histórico según filtros activos</span>
-      </div>
-      <div id="topMonths" class="top-months"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Clientes nuevos por año</h2>
-        <span>primera compra por cliente único</span>
-      </div>
-      <div id="newClientsYearChart" class="chart annual-trend"></div>
-    </section>
-
-    <section class="grid">
-      <article class="panel advisor-panel">
-        <div class="panel-head">
-          <h2>Asesoras</h2>
-          <span>Surco + San Isidro si no filtras sede</span>
-        </div>
-        <div id="advisorHighlights" class="advisor-highlights"></div>
-        <div id="advisorDrivers" class="advisor-drivers"></div>
-        <div class="table-wrap advisor-table-wrap">
-          <table id="advisorTable"></table>
-        </div>
-      </article>
-    </section>
-
-    <section class="panel advisor-room">
-      <div class="panel-head">
-        <h2>Sala de asesoras</h2>
-        <span>lectura para reunión comercial</span>
-      </div>
-      <div id="advisorRoom" class="advisor-room-grid"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Calidad de conversaciones</h2>
-        <span>chat score, discovery, CTA y correlación con ventas</span>
-      </div>
-      <div id="qualityDashboard" class="quality-grid"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Growth de clientes</h2>
-        <span>LTV, recompra, frecuencia y churn</span>
-      </div>
-      <div id="customerGrowth" class="growth-grid"></div>
-    </section>
-
-    <section class="grid two">
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Categorías</h2>
-          <span>participación</span>
-        </div>
-        <div id="categoryChart" class="chart bars"></div>
-      </article>
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Productos top</h2>
-          <span>por venta</span>
-        </div>
-        <div id="productChart" class="chart bars"></div>
-      </article>
-    </section>
-
-    <section class="grid two">
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Día de semana</h2>
-          <span>demanda comercial</span>
-        </div>
-        <div id="weekdayChart" class="chart bars"></div>
-      </article>
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Hora de venta</h2>
-          <span>franjas fuertes</span>
-        </div>
-        <div id="hourChart" class="chart bars"></div>
-      </article>
-    </section>
-
-    <section class="grid two">
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Clientes top</h2>
-          <span>valor y frecuencia</span>
-        </div>
-        <div class="table-wrap">
-          <table id="clientTable"></table>
-        </div>
-      </article>
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Lectura ejecutiva</h2>
-          <span>click para desplegar</span>
-        </div>
-        <div id="insights" class="insights"></div>
-      </article>
-    </section>
-
   </main>
 
   <script src="sales-data.js"></script>

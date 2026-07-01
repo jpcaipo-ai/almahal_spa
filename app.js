@@ -12,7 +12,9 @@ const state = {
   cliente: '',
   qualityWeek: 'all',
   qualityAdvisor: 'all',
-  focusAdvisor: ''
+  focusAdvisor: '',
+  view: 'review',
+  ask: ''
 };
 
 const els = {
@@ -24,8 +26,13 @@ const els = {
   startDate: document.querySelector('#startDateFilter'),
   endDate: document.querySelector('#endDateFilter'),
   cliente: document.querySelector('#clientSearch'),
-  kpis: document.querySelector('#kpis')
+  kpis: document.querySelector('#kpis'),
+  askInput: document.querySelector('#askInput'),
+  queryAnswer: document.querySelector('#queryAnswer'),
+  queryExport: document.querySelector('#queryExport')
 };
+
+let queryResultRows = [];
 
 const money = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', maximumFractionDigits: 0 });
 const money2 = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', maximumFractionDigits: 2 });
@@ -39,6 +46,10 @@ const customerSuccessAdvisors = new Set(['Antonelly Alvarado', 'Melanie Lopez An
 
 function uniqueSorted(records, key) {
   return [...new Set(records.map(r => r[key]).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), 'es'));
+}
+
+function latestMonth() {
+  return uniqueSorted(rawRecords, 'mes').at(-1) || 'all';
 }
 
 function addDays(date, days) {
@@ -1942,6 +1953,7 @@ function renderDashboard() {
   renderAdvisorRoom(records);
   renderQualityDashboard(records);
   renderCustomerGrowth(records);
+  renderQueryAssistant();
 
   const frequencyByClient = clientFrequencyMap(records);
   const clientRows = aggregate(records, row => `${row.sede} · ${row.cliente}`)
@@ -1983,19 +1995,132 @@ function escapeHtml(value) {
   }[char]));
 }
 
-function exportFilteredCsv() {
-  const records = filteredRecords();
+function normalizeText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('es');
+}
+
+function queryScopeFromText(text) {
+  const query = normalizeText(text);
+  let rows = filteredRecords();
+  const notes = [];
+  const monthMatch = query.match(/(20\d{2})[-\s/]?(0?[1-9]|1[0-2])/) || query.match(/(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)(?:\s+de)?\s+(20\d{2})?/);
+  const monthNames = {
+    enero: '01', febrero: '02', marzo: '03', abril: '04', mayo: '05', junio: '06',
+    julio: '07', agosto: '08', septiembre: '09', setiembre: '09', octubre: '10', noviembre: '11', diciembre: '12'
+  };
+  if (monthMatch) {
+    let monthKey = '';
+    if (/^20\d{2}/.test(monthMatch[1])) monthKey = `${monthMatch[1]}-${String(Number(monthMatch[2])).padStart(2, '0')}`;
+    else monthKey = `${monthMatch[2] || '2026'}-${monthNames[monthMatch[1]]}`;
+    rows = rawRecords.filter(row => row.mes === monthKey);
+    notes.push(optionLabel('mes', monthKey));
+  }
+  const service = uniqueSorted(rawRecords, 'categoria').find(cat => query.includes(normalizeText(cat)) || normalizeText(cat).split(' ').some(part => part.length > 4 && query.includes(part)));
+  const product = uniqueSorted(rawRecords, 'producto').find(productName => normalizeText(productName).length > 4 && query.includes(normalizeText(productName)));
+  const advisor = uniqueSorted(rawRecords, 'asesora').find(name => normalizeText(name).split(' ').some(part => part.length > 3 && query.includes(part)));
+  const store = uniqueSorted(rawRecords, 'sede').find(name => query.includes(normalizeText(name)));
+  if (service) {
+    rows = rows.filter(row => row.categoria === service);
+    notes.push(service);
+  }
+  if (product) {
+    rows = rows.filter(row => row.producto === product);
+    notes.push(product);
+  }
+  if (advisor) {
+    rows = rows.filter(row => row.asesora === advisor);
+    notes.push(advisor);
+  }
+  if (store) {
+    rows = rows.filter(row => row.sede === store);
+    notes.push(store);
+  }
+  if (query.includes('sin bigbox') || query.includes('operativa') || query.includes('sin corporativo')) {
+    rows = rows.filter(row => !normalizeText(row.cliente).includes('bigbox'));
+    notes.push('sin BIGBOX');
+  } else if (query.includes('bigbox')) {
+    rows = rows.filter(row => normalizeText(row.cliente).includes('bigbox'));
+    notes.push('BIGBOX');
+  }
+  const lifecycleAlias = [
+    ['resurreccion', 'resurreccion'],
+    ['resurreccion', 'resurrección'],
+    ['reactivacion', 'reactivacion'],
+    ['reactivacion', 'reactivación'],
+    ['continuidad', 'continuidad'],
+    ['nuevo', 'nuevos']
+  ].find(([, word]) => query.includes(normalizeText(word)));
+  if (lifecycleAlias) {
+    const lifecycleByTx = classifyTransactionsByLifecycle(rows);
+    rows = rows.filter(row => (lifecycleByTx.get(txKey(row)) || 'nuevo') === lifecycleAlias[0]);
+    notes.push(lifecycleAlias[1]);
+  }
+  return { rows, notes };
+}
+
+function renderQueryAssistant() {
+  if (!els.queryAnswer) return;
+  const text = (els.askInput?.value || state.ask || '').trim();
+  const fallbackText = 'Prueba: "faciales junio", "Surco junio sin BIGBOX", "Dayana rituales", "resurrección junio".';
+  if (!text) {
+    queryResultRows = filteredRecords();
+    els.queryAnswer.innerHTML = `<strong>Consulta rápida lista.</strong><br>${fallbackText}`;
+    return;
+  }
+  const { rows, notes } = queryScopeFromText(text);
+  queryResultRows = rows;
+  const revenue = sum(rows);
+  const tx = txCount(rows);
+  const clients = clientCount(rows);
+  const ticket = tx ? revenue / tx : 0;
+  const topStores = aggregate(rows, row => row.sede).sort((a, b) => b.revenue - a.revenue).slice(0, 3);
+  const topAdvisors = aggregate(rows, row => row.asesora).sort((a, b) => b.revenue - a.revenue).slice(0, 3);
+  const topProducts = aggregate(rows, row => row.producto).sort((a, b) => b.revenue - a.revenue).slice(0, 3);
+  const tableRows = [
+    ...topStores.map(item => [`Sede · ${item.name}`, money2.format(item.revenue)]),
+    ...topAdvisors.map(item => [`Asesora · ${item.name}`, money2.format(item.revenue)]),
+    ...topProducts.map(item => [`Producto · ${item.name}`, money2.format(item.revenue)])
+  ].slice(0, 7);
+  els.queryAnswer.innerHTML = `
+    <strong>${rows.length ? 'Resultado encontrado' : 'No encontré registros con esa consulta'}</strong>
+    <br>${notes.length ? `Filtro interpretado: ${notes.map(escapeHtml).join(' · ')}` : 'Usando los filtros activos del tablero.'}
+    <div class="query-answer-grid">
+      <article><span>Venta</span><b>${money2.format(revenue)}</b></article>
+      <article><span>Transacciones</span><b>${number.format(tx)}</b></article>
+      <article><span>Clientes</span><b>${number.format(clients)}</b></article>
+      <article><span>Ticket</span><b>${money2.format(ticket)}</b></article>
+    </div>
+    ${tableRows.length ? `<table class="query-mini-table">${tableRows.map(([label, value]) => `<tr><td>${escapeHtml(label)}</td><td>${escapeHtml(value)}</td></tr>`).join('')}</table>` : `<p>${fallbackText}</p>`}
+  `;
+}
+
+function downloadRowsCsv(rows, filename) {
   const columns = ['fecha', 'semana', 'mes', 'sede', 'asesora', 'cliente', 'producto', 'categoria', 'venta', 'cantidad', 'numeroDocumento'];
-  const lines = [columns.join(',')].concat(records.map(row => columns.map(col => `"${String(row[col] ?? '').replaceAll('"', '""')}"`).join(',')));
+  const lines = [columns.join(',')].concat(rows.map(row => columns.map(col => `"${String(row[col] ?? '').replaceAll('"', '""')}"`).join(',')));
   const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = 'almahal_dashboard_filtrado.csv';
+  link.download = filename;
   link.click();
   URL.revokeObjectURL(link.href);
 }
 
+function exportFilteredCsv() {
+  const records = filteredRecords();
+  downloadRowsCsv(records, 'almahal_dashboard_filtrado.csv');
+}
+
 function bindEvents() {
+  document.querySelectorAll('.view-button').forEach(button => {
+    button.addEventListener('click', () => {
+      state.view = button.dataset.view || 'review';
+      document.querySelectorAll('.view-button').forEach(item => item.classList.toggle('active', item === button));
+      document.querySelectorAll('.dashboard-view').forEach(panel => panel.classList.toggle('active', panel.dataset.viewPanel === state.view));
+    });
+  });
   const mapping = [
     ['sede', 'sede'],
     ['mes', 'mes'],
@@ -2029,15 +2154,30 @@ function bindEvents() {
     state.cliente = event.target.value;
     renderDashboard();
   });
+  document.querySelector('#runAsk')?.addEventListener('click', () => {
+    state.ask = els.askInput.value;
+    renderQueryAssistant();
+  });
+  els.askInput?.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      state.ask = event.target.value;
+      renderQueryAssistant();
+    }
+  });
+  els.queryExport?.addEventListener('click', () => {
+    downloadRowsCsv(queryResultRows.length ? queryResultRows : filteredRecords(), 'almahal_consulta.csv');
+  });
   document.querySelector('#resetFilters').addEventListener('click', () => {
-    Object.assign(state, { sede: 'all', mes: 'all', semana: 'all', asesora: 'all', categoria: 'all', startDate: '', endDate: '', cliente: '', qualityWeek: 'all', qualityAdvisor: 'all', focusAdvisor: '' });
+    Object.assign(state, { sede: 'all', mes: latestMonth(), semana: 'all', asesora: 'all', categoria: 'all', startDate: '', endDate: '', cliente: '', qualityWeek: 'all', qualityAdvisor: 'all', focusAdvisor: '', ask: '' });
     els.cliente.value = '';
+    if (els.askInput) els.askInput.value = '';
     hydrateFilters();
     renderDashboard();
   });
   document.querySelector('#exportCsv').addEventListener('click', exportFilteredCsv);
 }
 
+state.mes = latestMonth();
 hydrateFilters();
 bindEvents();
 renderDashboard();

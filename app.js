@@ -369,6 +369,10 @@ function renderKpis(records) {
   const compareLifecycle = clientLifecycleSummary(compareRecords);
   const compareTicketAvg = compareTransactions ? compareRevenue / compareTransactions : 0;
   const currentTicketAvg = transactions ? revenue / transactions : 0;
+  const operativeRecords = records.filter(row => !normalizeText(row.cliente).includes('bigbox'));
+  const compareOperativeRecords = compareRecords.filter(row => !normalizeText(row.cliente).includes('bigbox'));
+  const operativeRevenue = sum(operativeRecords);
+  const compareOperativeRevenue = sum(compareOperativeRecords);
   const currentCross = tickets.length ? multiline / tickets.length : 0;
   const compareCross = compareTickets.length ? compareMultiline / compareTickets.length : 0;
   const currentDailyAvg = days ? revenue / days : 0;
@@ -376,8 +380,10 @@ function renderKpis(records) {
 
   const cards = [
     ['Venta total', money.format(revenue), deltaText(revenue, compareRevenue, money.format)],
-    ['Transacciones', number.format(transactions), `${deltaText(transactions, compareTransactions, number.format)} · ${number.format(units)} unidades`],
+    ['Venta operativa', money.format(operativeRevenue), `${deltaText(operativeRevenue, compareOperativeRevenue, money.format)} · sin BIGBOX`],
+    ['Vs junio 2025', compareRevenue ? `${revenue >= compareRevenue ? '+' : ''}${percent.format((revenue - compareRevenue) / compareRevenue)}` : 'sin base', 'Crecimiento interanual'],
     ['Ticket promedio', money2.format(currentTicketAvg), deltaText(currentTicketAvg, compareTicketAvg, money2.format)],
+    ['Transacciones', number.format(transactions), `${deltaText(transactions, compareTransactions, number.format)} · ${number.format(units)} unidades`],
     ['Clientes', number.format(clients), `${deltaText(clients, compareClients, number.format)} · ${percent.format(clients ? repeatClients.length / clients : 0)} con recompra`],
     ['Nuevos vs existentes', `${number.format(lifecycle.nuevos)} / ${number.format(lifecycle.existentes)}`, `LY: ${number.format(compareLifecycle.nuevos)} / ${number.format(compareLifecycle.existentes)}`],
     ['Monto nuevos/existentes', `${money.format(lifecycle.ventaNuevos)} / ${money.format(lifecycle.ventaExistentes)}`, `LY: ${money.format(compareLifecycle.ventaNuevos)} / ${money.format(compareLifecycle.ventaExistentes)}`],
@@ -394,6 +400,7 @@ function renderKpis(records) {
 
 function renderBars(target, items, opts = {}) {
   const el = document.querySelector(target);
+  if (!el) return;
   const limit = opts.limit || 12;
   const sorted = [...items].sort((a, b) => b.revenue - a.revenue).slice(0, limit);
   const max = Math.max(...sorted.map(item => Math.abs(item.revenue)), 1);
@@ -416,6 +423,7 @@ function renderBars(target, items, opts = {}) {
 
 function renderLine(target, items, compareByDate = new Map()) {
   const el = document.querySelector(target);
+  if (!el) return;
   const sorted = [...items].sort((a, b) => String(a.name).localeCompare(String(b.name)));
   if (!sorted.length) {
     el.innerHTML = '<div class="empty">Sin datos para este filtro</div>';
@@ -518,6 +526,57 @@ function renderAnnualTrend(target, records) {
     </circle>
     <text x="${p.x}" y="${Math.max(16, p.y - 12)}" text-anchor="middle" class="annual-label">${money.format(p.item.revenue)}</text>`).join('')}
   </svg>`;
+}
+
+function renderExecutiveMonthlyComparison(target) {
+  const el = document.querySelector(target);
+  if (!el) return;
+  const scoped = comparableScopeRecords().filter(row => !normalizeText(row.cliente).includes('bigbox'));
+  const monthLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  const monthKeys = monthLabels.map((_, idx) => String(idx + 1).padStart(2, '0'));
+  const valueFor = (year, month) => sum(scoped.filter(row => row.mes === `${year}-${month}`));
+  const items = monthKeys.map((month, idx) => ({
+    label: monthLabels[idx],
+    current: valueFor('2026', month),
+    previous: valueFor('2025', month)
+  }));
+  const max = Math.max(...items.flatMap(item => [item.current, item.previous]), 1);
+  const w = 860;
+  const h = 360;
+  const pad = 48;
+  const slot = (w - pad * 2) / items.length;
+  const barW = Math.max(18, slot * 0.36);
+  const y = value => h - pad - (value / max) * (h - pad * 2);
+  const currentPoints = items.map((item, idx) => ({ x: pad + idx * slot + slot / 2, y: y(item.current), value: item.current, item }));
+  const previousPoints = items.map((item, idx) => ({ x: pad + idx * slot + slot / 2, y: y(item.previous), value: item.previous, item }));
+  const line = points => points.map((p, idx) => `${idx ? 'L' : 'M'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  const june = items[5];
+  const juneDelta = june.previous ? (june.current - june.previous) / june.previous : 0;
+  el.innerHTML = `<div class="exec-chart-summary">
+      <span>Venta operativa junio</span>
+      <strong>${money2.format(june.current)}</strong>
+      <small>${june.previous ? `${juneDelta >= 0 ? '+' : ''}${percent.format(juneDelta)} vs junio 2025` : 'sin base junio 2025'}</small>
+    </div>
+    <div class="legend"><span><i style="background:#0b5b4d"></i>2026</span><span><i style="background:#e4cda9"></i>2025</span></div>
+    <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Evolucion mensual 2025 vs 2026">
+      ${[0, 0.25, 0.5, 0.75, 1].map(tick => {
+        const yy = h - pad - tick * (h - pad * 2);
+        return `<line x1="${pad}" y1="${yy}" x2="${w - pad}" y2="${yy}" stroke="#ece4d8"></line>
+          <text x="4" y="${yy + 4}" class="axis">${money.format(max * tick)}</text>`;
+      }).join('')}
+      ${items.map((item, idx) => {
+        const cx = pad + idx * slot + slot / 2;
+        const prevH = (item.previous / max) * (h - pad * 2);
+        const currH = (item.current / max) * (h - pad * 2);
+        return `<rect x="${(cx - barW - 2).toFixed(1)}" y="${(h - pad - prevH).toFixed(1)}" width="${barW.toFixed(1)}" height="${prevH.toFixed(1)}" rx="5" fill="#e4cda9" opacity="0.65"></rect>
+          <rect x="${(cx + 2).toFixed(1)}" y="${(h - pad - currH).toFixed(1)}" width="${barW.toFixed(1)}" height="${currH.toFixed(1)}" rx="5" fill="#0b5b4d" opacity="0.92"></rect>
+          <text x="${cx.toFixed(1)}" y="${h - 12}" text-anchor="middle" class="axis">${item.label}</text>`;
+      }).join('')}
+      <path d="${line(previousPoints)}" fill="none" stroke="#d8b270" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"></path>
+      <path d="${line(currentPoints)}" fill="none" stroke="#0b5b4d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+      ${currentPoints.map((p, idx) => `<circle cx="${p.x}" cy="${p.y}" r="${idx === 5 ? 7 : 4}" fill="#0b5b4d"><title>${p.item.label} 2026: ${money2.format(p.value)}</title></circle>`).join('')}
+      ${previousPoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#d8b270"><title>${p.item.label} 2025: ${money2.format(p.value)}</title></circle>`).join('')}
+    </svg>`;
 }
 
 function monthDisplay(value) {
@@ -1824,6 +1883,7 @@ function renderDashboard() {
   renderBars('#storeChart', aggregate(records, row => row.sede), { limit: 6 });
   const dailyItems = aggregate(records, row => row.fecha);
   renderLine('#dailyChart', dailyItems, dailyCompareMap(dailyItems));
+  renderExecutiveMonthlyComparison('#executiveMonthlyChart');
   renderBars('#monthChart', aggregate(records, row => row.mesNombre), { limit: 12 });
   renderBars('#weekChart', aggregate(records, row => weekFullLabel(row.semana)), { limit: 16 });
   renderAnnualTrend('#yearTrendChart', records);

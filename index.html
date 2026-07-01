@@ -50,10 +50,10 @@
       <section class="review-main">
         <article class="panel hero-chart">
           <div class="panel-head">
-            <h2>Evolución mensual</h2>
-            <span>ventas y tendencia histórica</span>
+            <h2>Evolución mensual 2025 vs 2026</h2>
+            <span>venta operativa sin BIGBOX</span>
           </div>
-          <div id="monthChart" class="chart bars"></div>
+          <div id="executiveMonthlyChart" class="chart executive-monthly"></div>
         </article>
         <article class="panel executive-card">
           <div class="panel-head">
@@ -99,36 +99,38 @@
     </section>
 
     <section id="labView" class="dashboard-view" data-view-panel="lab">
-      <section class="lab-hero">
-        <div>
-          <p class="eyebrow">Growth Lab</p>
-          <h2>Análisis accionable</h2>
-          <p class="review-copy">Consulta, filtra, exporta y baja oportunidades por asesora, servicio, cliente y conversación.</p>
-        </div>
-        <article class="query-card">
-          <label for="askInput">Pregunta al tablero</label>
-          <div class="query-box">
-            <input id="askInput" type="search" placeholder="Ej: ¿Cómo le fue a faciales en junio?">
-            <button id="runAsk" type="button">Analizar</button>
-            <button id="queryExport" type="button">CSV</button>
-          </div>
-          <div id="queryAnswer" class="query-answer"></div>
-        </article>
-      </section>
+      <section class="lab-shell">
+        <div class="lab-main">
+          <section class="lab-hero">
+            <div>
+              <p class="eyebrow">Growth Lab</p>
+              <h2>Análisis accionable</h2>
+              <p class="review-copy">Consulta, filtra, exporta y baja oportunidades por asesora, servicio, cliente y conversación.</p>
+            </div>
+            <article class="query-card">
+              <label for="askInput">¿Qué quieres analizar?</label>
+              <div class="query-box">
+                <input id="askInput" type="search" placeholder="Ejemplo: ¿Cómo le fue a faciales en junio?">
+                <button id="runAsk" type="button">Consultar</button>
+                <button id="queryExport" type="button">CSV</button>
+              </div>
+              <div id="queryAnswer" class="query-answer"></div>
+            </article>
+          </section>
 
-      <section class="grid">
-        <article class="panel advisor-panel">
-          <div class="panel-head">
-            <h2>Asesoras</h2>
-            <span>ventas, conversaciones y cierre</span>
-          </div>
-          <div id="advisorHighlights" class="advisor-highlights"></div>
-          <div id="advisorDrivers" class="advisor-drivers"></div>
-          <div class="table-wrap advisor-table-wrap">
-            <table id="advisorTable"></table>
-          </div>
-        </article>
-      </section>
+          <section class="grid">
+            <article class="panel advisor-panel">
+              <div class="panel-head">
+                <h2>Asesoras</h2>
+                <span>ventas, conversaciones y cierre</span>
+              </div>
+              <div id="advisorHighlights" class="advisor-highlights"></div>
+              <div id="advisorDrivers" class="advisor-drivers"></div>
+              <div class="table-wrap advisor-table-wrap">
+                <table id="advisorTable"></table>
+              </div>
+            </article>
+          </section>
 
       <section class="panel advisor-room">
         <div class="panel-head">
@@ -230,6 +232,41 @@
           <span>lunes-domingo</span>
         </div>
         <div id="weekChart" class="chart bars"></div>
+      </section>
+        </div>
+
+        <aside class="client-360">
+          <button class="client-close" type="button" aria-label="Cerrar">×</button>
+          <p class="eyebrow">Cliente 360</p>
+          <div class="client-profile">
+            <div class="client-avatar">ER</div>
+            <div>
+              <strong>Estela Redhead</strong>
+              <span>Activo</span>
+              <small>998 123 456 · estela.red@gmail.com</small>
+            </div>
+          </div>
+          <dl class="client-facts">
+            <div><dt>Sede</dt><dd>San Isidro</dd></div>
+            <div><dt>Primera compra</dt><dd>17/03/2026</dd></div>
+            <div><dt>Última compra</dt><dd>21/05/2026</dd></div>
+            <div><dt>Días sin compra</dt><dd>41</dd></div>
+            <div><dt>LTV total</dt><dd>S/ 2,337</dd></div>
+            <div><dt>Compras</dt><dd>3</dd></div>
+            <div><dt>Lifecycle actual</dt><dd>Continuidad</dd></div>
+          </dl>
+          <div class="client-history">
+            <h3>Historial de compras</h3>
+            <article><span>21/05/2026</span><strong>Ritual relajante</strong><em>S/ 779</em></article>
+            <article><span>17/04/2026</span><strong>Facial hidratante</strong><em>S/ 598</em></article>
+            <article><span>17/03/2026</span><strong>Depilación láser</strong><em>S/ 960</em></article>
+          </div>
+          <div class="client-action">
+            <span>Segmento sugerido</span>
+            <strong>Leal potencial</strong>
+            <button type="button">Enviar campaña</button>
+          </div>
+        </aside>
       </section>
     </section>
   </main>

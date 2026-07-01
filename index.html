@@ -12,16 +12,17 @@
       <span class="brand-mark">A</span>
       <div>
         <p class="eyebrow">Almahal Spa x LlamaLeads</p>
-        <h1>Growth Command Center</h1>
+        <h1>Almahal Growth Review</h1>
       </div>
     </div>
     <nav class="view-switch" aria-label="Vistas del tablero">
-      <button class="view-button active" type="button" data-view="review">Growth Review</button>
+      <button class="view-button active" type="button" data-view="review">Executive View</button>
       <button class="view-button" type="button" data-view="lab">Growth Lab</button>
+      <button id="exportCsv" class="view-button export-view-button" type="button" title="Exportar tabla filtrada">Exportar</button>
     </nav>
     <div class="top-actions">
-      <button id="resetFilters" type="button" title="Limpiar todos los filtros">Reset</button>
-      <button id="exportCsv" type="button" title="Exportar tabla filtrada">CSV</button>
+      <span class="updated-pill">Actualizado: 01/07/2026</span>
+      <button id="resetFilters" type="button" title="Limpiar todos los filtros">Limpiar</button>
     </div>
   </header>
 
@@ -72,19 +73,14 @@
         <div id="juneYoy" class="june-yoy"></div>
       </section>
 
-      <section class="review-main compact-review">
+      <section class="executive-summary-grid" id="executiveSummaryCards"></section>
+
+      <section class="review-main compact-review hidden-data-panels" aria-hidden="true">
         <article class="panel">
-          <div class="panel-head">
-            <h2>Venta por sede</h2>
-            <span id="recordCount"></span>
-          </div>
+          <span id="recordCount"></span>
           <div id="storeChart" class="chart bars"></div>
         </article>
         <article class="panel">
-          <div class="panel-head">
-            <h2>Lifecycle de ventas</h2>
-            <span>nuevos, continuidad, reactivación y resurrección</span>
-          </div>
           <div id="lifecycleTop" class="lifecycle-top"></div>
         </article>
       </section>

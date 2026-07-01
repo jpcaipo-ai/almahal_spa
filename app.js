@@ -579,6 +579,57 @@ function renderExecutiveMonthlyComparison(target) {
     </svg>`;
 }
 
+function renderExecutiveSummaryCards(records) {
+  const el = document.querySelector('#executiveSummaryCards');
+  if (!el) return;
+  const compare = comparableRecordsForCurrent(records);
+  const lifecycle = lifecycleSalesBreakdown(records);
+  const totalRevenue = sum(records);
+  const storeCards = aggregate(records, row => row.sede)
+    .sort((a, b) => String(a.name).localeCompare(String(b.name), 'es'))
+    .map(item => {
+      const lyRows = compare.filter(row => row.sede === item.name);
+      const topService = aggregate(item.rows, row => row.categoria).sort((a, b) => b.revenue - a.revenue)[0];
+      return {
+        type: 'store',
+        title: item.name,
+        revenue: item.revenue,
+        delta: deltaText(item.revenue, sum(lyRows), money.format),
+        ticket: item.avgTicket,
+        clients: item.clients,
+        top: topService?.name || '-'
+      };
+    });
+  const lifecycleTotal = lifecycle.reduce((acc, row) => acc + row.venta, 0);
+  const lifecycleRows = lifecycle.map(row => ({
+    label: row.label,
+    value: row.venta,
+    share: lifecycleTotal ? row.venta / lifecycleTotal : 0
+  }));
+  el.innerHTML = `${storeCards.map(card => `<article class="exec-summary-card">
+      <span class="exec-summary-kicker">${escapeHtml(card.title)}</span>
+      <strong>${money2.format(card.revenue)}</strong>
+      <small>${escapeHtml(card.delta)}</small>
+      <div class="exec-summary-meta">
+        <p><span>Ticket prom.</span><b>${money2.format(card.ticket)}</b></p>
+        <p><span>Clientes únicos</span><b>${number.format(card.clients)}</b></p>
+        <p><span>Top servicio</span><b>${escapeHtml(card.top)}</b></p>
+      </div>
+    </article>`).join('')}
+    <article class="exec-summary-card lifecycle-exec-card">
+      <span class="exec-summary-kicker">Lifecycle del mes</span>
+      <strong>${money2.format(lifecycleTotal)}</strong>
+      <small>La suma coincide con la venta filtrada por lifecycle.</small>
+      <div class="lifecycle-mini-bars">
+        ${lifecycleRows.map(row => `<div>
+          <span>${escapeHtml(row.label)}</span>
+          <i><b style="width:${Math.max(4, row.share * 100).toFixed(1)}%"></b></i>
+          <em>${percent.format(row.share)} · ${money.format(row.value)}</em>
+        </div>`).join('')}
+      </div>
+    </article>`;
+}
+
 function monthDisplay(value) {
   const hit = rawRecords.find(row => row.mes === value);
   if (!hit) return value;
@@ -1876,6 +1927,7 @@ function renderDashboard() {
   const summary = renderKpis(records);
   renderJuneYoy();
   renderLifecycleTop(records);
+  renderExecutiveSummaryCards(records);
   document.querySelector('#recordCount').textContent = `${number.format(records.length)} líneas`;
   const dates = uniqueSorted(records, 'fecha');
   document.querySelector('#dateRange').textContent = dates.length ? `${dates[0]} a ${dates.at(-1)}` : 'sin fechas';

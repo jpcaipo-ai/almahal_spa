@@ -1,4 +1,4 @@
-const rawRecords = window.SALES_DATA.records;
+﻿const rawRecords = window.SALES_DATA.records;
 const qualityRecords = window.QUALITY_DATA?.records || [];
 
 const state = {
@@ -392,7 +392,6 @@ function renderKpis(records) {
   const compareOperativeRecords = compareRecords.filter(row => !normalizeText(row.cliente).includes('bigbox'));
   const operativeRevenue = sum(operativeRecords);
   const compareOperativeRevenue = sum(compareOperativeRecords);
-  const incremental = incrementalSinceEngagement();
   const currentCross = tickets.length ? multiline / tickets.length : 0;
   const compareCross = compareTickets.length ? compareMultiline / compareTickets.length : 0;
   const currentDailyAvg = days ? revenue / days : 0;
@@ -401,7 +400,6 @@ function renderKpis(records) {
   const cards = [
     ['Venta total', money.format(revenue), deltaText(revenue, compareRevenue, money.format)],
     ['Venta operativa', money.format(operativeRevenue), `${deltaText(operativeRevenue, compareOperativeRevenue, money.format)} · sin BIGBOX`],
-    ['Incremental acumulado', money.format(incremental.total), `${optionLabel('mes', incremental.start)} a ${optionLabel('mes', incremental.end)} · vs LY`],
     ['Vs junio 2025', compareRevenue ? `${revenue >= compareRevenue ? '+' : ''}${percent.format((revenue - compareRevenue) / compareRevenue)}` : 'sin base', 'Crecimiento interanual'],
     ['Ticket promedio', money2.format(currentTicketAvg), deltaText(currentTicketAvg, compareTicketAvg, money2.format)],
     ['Transacciones', number.format(transactions), `${deltaText(transactions, compareTransactions, number.format)} · ${number.format(units)} unidades`],
@@ -417,6 +415,39 @@ function renderKpis(records) {
   )).join('');
 
   return { revenue, transactions, units, clients, days, multiline, repeatRevenue, lifecycle };
+}
+
+function renderIncrementalImpact() {
+  const el = document.querySelector('#incrementalImpact');
+  if (!el) return;
+  const data = incrementalSinceEngagement();
+  const rows = data.rows.filter(row => row.previous > 0 || row.current > 0);
+  const avgIncremental = rows.length ? data.total / rows.length : 0;
+  const currentTotal = rows.reduce((acc, row) => acc + row.current, 0);
+  const previousTotal = rows.reduce((acc, row) => acc + row.previous, 0);
+  const weightedGrowth = previousTotal ? (currentTotal - previousTotal) / previousTotal : 0;
+  const simpleGrowth = rows.length
+    ? rows.reduce((acc, row) => acc + (row.previous ? (row.current - row.previous) / row.previous : 0), 0) / rows.length
+    : 0;
+  const maxBar = Math.max(...rows.map(row => Math.abs(row.incremental)), 1);
+  const bars = rows.map(row => {
+    const height = Math.max(8, Math.abs(row.incremental) / maxBar * 100);
+    const positive = row.incremental >= 0;
+    return `<span class="${positive ? 'positive' : 'negative'}" style="height:${height}%;" title="${optionLabel('mes', row.month)}: ${money.format(row.incremental)}"></span>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="impact-copy">
+      <p class="eyebrow">Impacto LlamaLeads desde agosto 2025</p>
+      <strong>${money.format(data.total)}</strong>
+      <small>Incremental acumulado vs el mismo mes del año anterior.</small>
+    </div>
+    <div class="incremental-stat">
+      <span>Promedio mensual</span>
+      <strong>${money2.format(avgIncremental)}</strong>
+      <small>${percent.format(weightedGrowth)} crecimiento ponderado · ${percent.format(simpleGrowth)} promedio simple</small>
+    </div>
+    <div class="incremental-spark" aria-hidden="true">${bars}</div>
+  `;
 }
 
 function renderBars(target, items, opts = {}) {
@@ -1946,6 +1977,7 @@ function renderDashboard() {
   refreshCategoryOptions();
   const records = filteredRecords();
   const summary = renderKpis(records);
+  renderIncrementalImpact();
   renderJuneYoy();
   renderLifecycleTop(records);
   renderExecutiveSummaryCards(records);
@@ -2314,3 +2346,5 @@ state.mes = latestMonth();
 hydrateFilters();
 bindEvents();
 renderDashboard();
+
+

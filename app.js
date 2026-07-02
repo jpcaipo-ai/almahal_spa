@@ -41,7 +41,7 @@ const percent = new Intl.NumberFormat('es-PE', { style: 'percent', maximumFracti
 const shortDate = new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: '2-digit' });
 
 const dayOrder = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
-const palette = ['#146c63', '#c27a2c', '#6d5a9c', '#2f789b', '#9a3a31', '#647a42'];
+const palette = ['#6f6a3d', '#b7995c', '#7a5f52', '#9c8d63', '#8e3f31', '#b8a780'];
 const customerSuccessAdvisors = new Set(['Antonelly Alvarado', 'Melanie Lopez Anaya']);
 
 function uniqueSorted(records, key) {
@@ -148,6 +148,25 @@ function clientLifecycleSummary(records) {
     start: uniqueSorted(records, 'fecha')[0] || '',
     end: uniqueSorted(records, 'fecha').at(-1) || ''
   };
+}
+
+function incrementalSinceEngagement() {
+  const scoped = comparableScopeRecords();
+  const months = uniqueSorted(scoped, 'mes').filter(month => month >= '2025-08');
+  let total = 0;
+  const rows = [];
+  for (const month of months) {
+    const [year, monthNum] = month.split('-').map(Number);
+    const previousMonth = `${year - 1}-${String(monthNum).padStart(2, '0')}`;
+    const currentRows = scoped.filter(row => row.mes === month);
+    const previousRows = scoped.filter(row => row.mes === previousMonth);
+    const current = sum(currentRows);
+    const previous = sum(previousRows);
+    const incremental = current - previous;
+    total += incremental;
+    rows.push({ month, previousMonth, current, previous, incremental });
+  }
+  return { total, rows, start: '2025-08', end: months.at(-1) || '' };
 }
 
 function transactionRows(records) {
@@ -373,6 +392,7 @@ function renderKpis(records) {
   const compareOperativeRecords = compareRecords.filter(row => !normalizeText(row.cliente).includes('bigbox'));
   const operativeRevenue = sum(operativeRecords);
   const compareOperativeRevenue = sum(compareOperativeRecords);
+  const incremental = incrementalSinceEngagement();
   const currentCross = tickets.length ? multiline / tickets.length : 0;
   const compareCross = compareTickets.length ? compareMultiline / compareTickets.length : 0;
   const currentDailyAvg = days ? revenue / days : 0;
@@ -381,6 +401,7 @@ function renderKpis(records) {
   const cards = [
     ['Venta total', money.format(revenue), deltaText(revenue, compareRevenue, money.format)],
     ['Venta operativa', money.format(operativeRevenue), `${deltaText(operativeRevenue, compareOperativeRevenue, money.format)} · sin BIGBOX`],
+    ['Incremental acumulado', money.format(incremental.total), `${optionLabel('mes', incremental.start)} a ${optionLabel('mes', incremental.end)} · vs LY`],
     ['Vs junio 2025', compareRevenue ? `${revenue >= compareRevenue ? '+' : ''}${percent.format((revenue - compareRevenue) / compareRevenue)}` : 'sin base', 'Crecimiento interanual'],
     ['Ticket promedio', money2.format(currentTicketAvg), deltaText(currentTicketAvg, compareTicketAvg, money2.format)],
     ['Transacciones', number.format(transactions), `${deltaText(transactions, compareTransactions, number.format)} · ${number.format(units)} unidades`],
@@ -450,15 +471,15 @@ function renderLine(target, items, compareByDate = new Map()) {
   const compareD = comparePoints.map((p, idx) => `${idx ? 'L' : 'M'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
   const area = `${d} L ${points.at(-1).x.toFixed(1)} ${h - pad} L ${points[0].x.toFixed(1)} ${h - pad} Z`;
   const labels = points.filter((_, idx) => idx === 0 || idx === points.length - 1 || idx % Math.ceil(points.length / 6) === 0);
-  el.innerHTML = `<div class="legend"><span><i style="background:#146c63"></i>Actual</span><span><i style="background:#c27a2c"></i>Año pasado comparable</span></div>
+  el.innerHTML = `<div class="legend"><span><i style="background:#6f6a3d"></i>Actual</span><span><i style="background:#b7995c"></i>Año pasado comparable</span></div>
   <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Tendencia diaria">
     <path d="${area}" fill="rgba(20,108,99,.12)"></path>
-    ${compareD ? `<path d="${compareD}" fill="none" stroke="#c27a2c" stroke-width="3" stroke-dasharray="7 7" stroke-linecap="round"></path>` : ''}
-    <path d="${d}" fill="none" stroke="#146c63" stroke-width="3" stroke-linecap="round"></path>
-    ${comparePoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#c27a2c"><title>${p.item.name}: ${money2.format(p.value)}</title></circle>`).join('')}
+    ${compareD ? `<path d="${compareD}" fill="none" stroke="#b7995c" stroke-width="3" stroke-dasharray="7 7" stroke-linecap="round"></path>` : ''}
+    <path d="${d}" fill="none" stroke="#6f6a3d" stroke-width="3" stroke-linecap="round"></path>
+    ${comparePoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#b7995c"><title>${p.item.name}: ${money2.format(p.value)}</title></circle>`).join('')}
     ${points.map(p => {
       const comparable = compareByDate.get(p.item.name);
-      return `<circle class="line-point" cx="${p.x}" cy="${p.y}" r="5" fill="#146c63" data-date="${escapeHtml(p.item.name)}" data-sales="${escapeHtml(money2.format(p.item.revenue))}" data-tx="${p.item.tx}" data-comp-date="${escapeHtml(comparable?.name || '')}" data-comp-sales="${escapeHtml(comparable ? money2.format(comparable.revenue) : 'sin data')}" data-comp-tx="${comparable?.tx || 0}"><title>${p.item.name}: ${money2.format(p.item.revenue)}</title></circle>`;
+      return `<circle class="line-point" cx="${p.x}" cy="${p.y}" r="5" fill="#6f6a3d" data-date="${escapeHtml(p.item.name)}" data-sales="${escapeHtml(money2.format(p.item.revenue))}" data-tx="${p.item.tx}" data-comp-date="${escapeHtml(comparable?.name || '')}" data-comp-sales="${escapeHtml(comparable ? money2.format(comparable.revenue) : 'sin data')}" data-comp-tx="${comparable?.tx || 0}"><title>${p.item.name}: ${money2.format(p.item.revenue)}</title></circle>`;
     }).join('')}
     <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="#ddd8d0"></line>
     ${labels.map(p => `<text x="${p.x}" y="${h - 8}" text-anchor="middle" class="axis">${p.item.name.slice(5)}</text>`).join('')}
@@ -520,8 +541,8 @@ function renderAnnualTrend(target, records) {
       return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" rx="7" fill="${color}" opacity="0.22"></rect>
         <text x="${(x + barW / 2).toFixed(1)}" y="${h - 10}" text-anchor="middle" class="axis">${escapeHtml(item.name)}</text>`;
     }).join('')}
-    <path d="${line}" fill="none" stroke="#146c63" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
-    ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#146c63">
+    <path d="${line}" fill="none" stroke="#6f6a3d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+    ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#6f6a3d">
       <title>${p.item.name}: ${money2.format(p.item.revenue)} · ${number.format(p.item.tx)} tx</title>
     </circle>
     <text x="${p.x}" y="${Math.max(16, p.y - 12)}" text-anchor="middle" class="annual-label">${money.format(p.item.revenue)}</text>`).join('')}
@@ -557,7 +578,7 @@ function renderExecutiveMonthlyComparison(target) {
       <strong>${money2.format(june.current)}</strong>
       <small>${june.previous ? `${juneDelta >= 0 ? '+' : ''}${percent.format(juneDelta)} vs junio 2025` : 'sin base junio 2025'}</small>
     </div>
-    <div class="legend"><span><i style="background:#0b5b4d"></i>2026</span><span><i style="background:#e4cda9"></i>2025</span></div>
+    <div class="legend"><span><i style="background:#6f6a3d"></i>2026</span><span><i style="background:#d9c293"></i>2025</span></div>
     <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Evolucion mensual 2025 vs 2026">
       ${[0, 0.25, 0.5, 0.75, 1].map(tick => {
         const yy = h - pad - tick * (h - pad * 2);
@@ -568,14 +589,14 @@ function renderExecutiveMonthlyComparison(target) {
         const cx = pad + idx * slot + slot / 2;
         const prevH = (item.previous / max) * (h - pad * 2);
         const currH = (item.current / max) * (h - pad * 2);
-        return `<rect x="${(cx - barW - 2).toFixed(1)}" y="${(h - pad - prevH).toFixed(1)}" width="${barW.toFixed(1)}" height="${prevH.toFixed(1)}" rx="5" fill="#e4cda9" opacity="0.65"></rect>
-          <rect x="${(cx + 2).toFixed(1)}" y="${(h - pad - currH).toFixed(1)}" width="${barW.toFixed(1)}" height="${currH.toFixed(1)}" rx="5" fill="#0b5b4d" opacity="0.92"></rect>
+        return `<rect x="${(cx - barW - 2).toFixed(1)}" y="${(h - pad - prevH).toFixed(1)}" width="${barW.toFixed(1)}" height="${prevH.toFixed(1)}" rx="5" fill="#d9c293" opacity="0.72"></rect>
+          <rect x="${(cx + 2).toFixed(1)}" y="${(h - pad - currH).toFixed(1)}" width="${barW.toFixed(1)}" height="${currH.toFixed(1)}" rx="5" fill="#6f6a3d" opacity="0.94"></rect>
           <text x="${cx.toFixed(1)}" y="${h - 12}" text-anchor="middle" class="axis">${item.label}</text>`;
       }).join('')}
-      <path d="${line(previousPoints)}" fill="none" stroke="#d8b270" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"></path>
-      <path d="${line(currentPoints)}" fill="none" stroke="#0b5b4d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
-      ${currentPoints.map((p, idx) => `<circle cx="${p.x}" cy="${p.y}" r="${idx === 5 ? 7 : 4}" fill="#0b5b4d"><title>${p.item.label} 2026: ${money2.format(p.value)}</title></circle>`).join('')}
-      ${previousPoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#d8b270"><title>${p.item.label} 2025: ${money2.format(p.value)}</title></circle>`).join('')}
+      <path d="${line(previousPoints)}" fill="none" stroke="#b7995c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"></path>
+      <path d="${line(currentPoints)}" fill="none" stroke="#6f6a3d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+      ${currentPoints.map((p, idx) => `<circle cx="${p.x}" cy="${p.y}" r="${idx === 5 ? 7 : 4}" fill="#6f6a3d"><title>${p.item.label} 2026: ${money2.format(p.value)}</title></circle>`).join('')}
+      ${previousPoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#b7995c"><title>${p.item.label} 2025: ${money2.format(p.value)}</title></circle>`).join('')}
     </svg>`;
 }
 
@@ -1072,7 +1093,7 @@ function renderAdvisorRoom(records) {
 
   el.innerHTML = `
     <div>
-      <div class="legend"><span><i style="background:#146c63"></i>Ranking por venta</span></div>
+      <div class="legend"><span><i style="background:#6f6a3d"></i>Ranking por venta</span></div>
       <div class="advisor-list">${list}</div>
     </div>
     <div class="advisor-focus">

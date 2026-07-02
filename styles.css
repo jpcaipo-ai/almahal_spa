@@ -1,14 +1,14 @@
 :root {
-  --bg: #f6f5f2;
-  --surface: #ffffff;
-  --ink: #1d2523;
-  --muted: #66706c;
-  --line: #ddd8d0;
-  --accent: #146c63;
-  --accent-2: #c27a2c;
-  --accent-3: #6d5a9c;
-  --soft: #e9f3ef;
-  --danger: #9a3a31;
+  --bg: #efe9dc;
+  --surface: #fffaf1;
+  --ink: #24160f;
+  --muted: #7a5f52;
+  --line: #e1d4bf;
+  --accent: #6f6a3d;
+  --accent-2: #b7995c;
+  --accent-3: #7a5f52;
+  --soft: #f4eddf;
+  --danger: #8e3f31;
   --shadow: 0 14px 32px rgba(31, 37, 35, 0.08);
 }
 
@@ -18,7 +18,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Montserrat, Poppins, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow-x: hidden;
 }
 
@@ -1615,8 +1615,9 @@ tbody tr:hover { background: var(--soft); }
 /* Premium command center refresh */
 body {
   background:
-    radial-gradient(circle at top left, rgba(20,108,99,0.09), transparent 32%),
-    linear-gradient(180deg, #faf7f0 0%, #f4f1ea 52%, #fbfaf7 100%);
+    radial-gradient(circle at top left, rgba(183,153,92,0.16), transparent 34%),
+    radial-gradient(circle at 88% 20%, rgba(122,95,82,0.09), transparent 26%),
+    linear-gradient(180deg, #f8f1e3 0%, #efe9dc 54%, #fffaf1 100%);
 }
 
 .premium-topbar {
@@ -1625,7 +1626,7 @@ body {
   display: grid;
   grid-template-columns: minmax(310px, 1fr) auto auto;
   padding: 12px 30px;
-  background: #050505;
+  background: #24160f;
   color: #fffaf0;
   border-bottom: 1px solid rgba(255,255,255,0.08);
   box-shadow: 0 18px 50px rgba(15,21,18,0.18);
@@ -1652,7 +1653,7 @@ body {
 }
 
 .premium-topbar .eyebrow {
-  color: #d4b57a;
+  color: #b7995c;
   letter-spacing: 0.12em;
 }
 
@@ -1682,8 +1683,8 @@ body {
 }
 
 .view-button.active {
-  color: #0f1512;
-  background: #d6ad57;
+  color: #24160f;
+  background: #b7995c;
 }
 
 .premium-topbar .top-actions button {
@@ -1780,26 +1781,29 @@ body {
 }
 
 .executive-kpis {
-  grid-template-columns: repeat(4, minmax(165px, 1fr));
+  grid-template-columns: repeat(5, minmax(145px, 1fr));
   margin-bottom: 0;
 }
 
 .executive-kpis .kpi {
   min-height: 154px;
-  padding: 22px;
+  padding: 20px;
   border-radius: 10px;
   background: rgba(255,255,255,0.9);
   box-shadow: none;
 }
 
-.executive-kpis .kpi:nth-child(n+5) {
+.executive-kpis .kpi:nth-child(n+6) {
   display: none;
 }
 
 .executive-kpis .kpi strong {
   margin-top: 14px;
-  font-size: clamp(27px, 2.8vw, 42px);
-  color: #050505;
+  max-width: 100%;
+  font-size: clamp(22px, 1.75vw, 30px);
+  color: #24160f;
+  overflow-wrap: normal;
+  white-space: nowrap;
 }
 
 .review-main {

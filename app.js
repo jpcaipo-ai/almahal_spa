@@ -153,13 +153,19 @@ function clientLifecycleSummary(records) {
 function incrementalSinceEngagement() {
   const scoped = comparableScopeRecords();
   const months = uniqueSorted(scoped, 'mes').filter(month => month >= '2025-08');
+  const latestDate = uniqueSorted(scoped, 'fecha').at(-1) || '';
+  const latestMonth = latestDate ? latestDate.slice(0, 7) : '';
   let total = 0;
   const rows = [];
   for (const month of months) {
     const [year, monthNum] = month.split('-').map(Number);
     const previousMonth = `${year - 1}-${String(monthNum).padStart(2, '0')}`;
     const currentRows = scoped.filter(row => row.mes === month);
-    const previousRows = scoped.filter(row => row.mes === previousMonth);
+    let previousRows = scoped.filter(row => row.mes === previousMonth);
+    if (month === latestMonth && latestDate) {
+      const cutoffDay = Number(latestDate.slice(8, 10));
+      previousRows = previousRows.filter(row => Number(row.fecha.slice(8, 10)) <= cutoffDay);
+    }
     const current = sum(currentRows);
     const previous = sum(previousRows);
     const incremental = current - previous;

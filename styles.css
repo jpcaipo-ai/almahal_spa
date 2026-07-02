@@ -1825,6 +1825,8 @@ main {
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 14px;
+  min-width: 0;
+  width: 100%;
 }
 
 .executive-kpis {
@@ -1865,6 +1867,7 @@ main {
     linear-gradient(135deg, rgba(255,250,241,0.96), rgba(244,237,223,0.88)),
     radial-gradient(circle at 96% 18%, rgba(183,153,92,0.18), transparent 32%);
   box-shadow: 0 18px 48px rgba(36,22,15,0.08);
+  min-width: 0;
 }
 
 .incremental-impact .eyebrow {
@@ -2389,6 +2392,21 @@ main {
   .view-switch { width: fit-content; }
   .premium-filters { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
   .review-hero, .lab-hero, .review-main, .compact-review { grid-template-columns: 1fr; }
+  .review-hero > div:first-child,
+  .lab-hero > div:first-child,
+  .hero-metrics,
+  .incremental-impact {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .incremental-impact {
+    grid-template-columns: minmax(0, 1fr) minmax(190px, 0.7fr);
+  }
+  .incremental-spark {
+    grid-column: 1 / -1;
+    min-height: 72px;
+  }
   .executive-kpis { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
   .executive-summary-grid { grid-template-columns: 1fr; }
   .lab-shell { grid-template-columns: 1fr; }
@@ -2401,8 +2419,27 @@ main {
   .view-switch { width: 100%; }
   .view-button { flex: 1; }
   .premium-filters { position: static; grid-template-columns: 1fr; }
-  .executive-kpis, .query-box, .query-answer-grid { grid-template-columns: 1fr; }
+  .executive-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .incremental-impact {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .incremental-stat {
+    padding-left: 0;
+    padding-top: 12px;
+    border-left: 0;
+    border-top: 1px solid rgba(183,153,92,0.28);
+  }
+  .incremental-spark {
+    grid-column: auto;
+    min-height: 58px;
+  }
+  .query-box, .query-answer-grid { grid-template-columns: 1fr; }
   .exec-summary-meta, .lifecycle-mini-bars div { grid-template-columns: 1fr; }
   .lifecycle-mini-bars em { text-align: left; }
   .review-hero h2, .lab-hero h2 { font-size: 34px; }
+}
+
+@media (max-width: 420px) {
+  .executive-kpis { grid-template-columns: 1fr; }
 }

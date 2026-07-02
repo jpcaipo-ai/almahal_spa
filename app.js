@@ -396,11 +396,16 @@ function renderKpis(records) {
   const compareCross = compareTickets.length ? compareMultiline / compareTickets.length : 0;
   const currentDailyAvg = days ? revenue / days : 0;
   const compareDailyAvg = compareDays ? compareRevenue / compareDays : 0;
+  const visibleMonths = uniqueSorted(records, 'mes');
+  const activeMonth = state.mes !== 'all' ? state.mes : (visibleMonths.length === 1 ? visibleMonths[0] : '');
+  const comparisonLabel = activeMonth
+    ? `Vs ${optionLabel('mes', `${Number(activeMonth.slice(0, 4)) - 1}-${activeMonth.slice(5, 7)}`)}`
+    : 'Vs periodo LY';
 
   const cards = [
     ['Venta total', money.format(revenue), deltaText(revenue, compareRevenue, money.format)],
     ['Venta operativa', money.format(operativeRevenue), `${deltaText(operativeRevenue, compareOperativeRevenue, money.format)} · sin BIGBOX`],
-    ['Vs junio 2025', compareRevenue ? `${revenue >= compareRevenue ? '+' : ''}${percent.format((revenue - compareRevenue) / compareRevenue)}` : 'sin base', 'Crecimiento interanual'],
+    [comparisonLabel, compareRevenue ? `${revenue >= compareRevenue ? '+' : ''}${percent.format((revenue - compareRevenue) / compareRevenue)}` : 'sin base', 'Crecimiento interanual'],
     ['Ticket promedio', money2.format(currentTicketAvg), deltaText(currentTicketAvg, compareTicketAvg, money2.format)],
     ['Transacciones', number.format(transactions), `${deltaText(transactions, compareTransactions, number.format)} · ${number.format(units)} unidades`],
     ['Clientes', number.format(clients), `${deltaText(clients, compareClients, number.format)} · ${percent.format(clients ? repeatClients.length / clients : 0)} con recompra`],

@@ -1746,7 +1746,20 @@ body {
   animation: fadeIn .28s ease both;
 }
 
-.dashboard-view.active { display: block; }
+main {
+  display: block;
+  min-height: calc(100vh - 72px);
+}
+
+.dashboard-view.active {
+  display: block !important;
+}
+
+#reviewView.active .review-hero,
+#labView.active .lab-shell {
+  visibility: visible;
+  opacity: 1;
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Almahal Growth Review</title>
-  <link rel="stylesheet" href="styles.css?v=daily-lifecycle-yoy">
+  <link rel="stylesheet" href="styles.css?v=daily-compare-filter">
 </head>
 <body>
   <header class="topbar premium-topbar">
@@ -91,8 +91,19 @@
 
       <section class="panel">
         <div class="panel-head">
-          <h2>Tendencia diaria vs mes anterior y año pasado</h2>
-          <span id="dateRange"></span>
+          <div>
+            <h2>Tendencia diaria</h2>
+            <span id="dateRange"></span>
+          </div>
+          <label class="inline-select">
+            <span>Comparar con</span>
+            <select id="dailyCompareFilter">
+              <option value="both">Mes anterior + año pasado</option>
+              <option value="previousMonth">Mes anterior</option>
+              <option value="lastYear">Año pasado comparable</option>
+              <option value="none">Solo actual</option>
+            </select>
+          </label>
         </div>
         <div id="dailyChart" class="chart line"></div>
       </section>
@@ -273,7 +284,7 @@
 
   <script src="sales-data.js?v=20260702"></script>
   <script src="quality-data.js"></script>
-  <script src="app.js?v=daily-lifecycle-yoy"></script>
+  <script src="app.js?v=daily-compare-filter"></script>
 </body>
 </html>
 

@@ -13,6 +13,7 @@ const state = {
   qualityWeek: 'all',
   qualityAdvisor: 'all',
   focusAdvisor: '',
+  dailyCompare: 'both',
   view: 'review',
   ask: ''
 };
@@ -26,6 +27,7 @@ const els = {
   startDate: document.querySelector('#startDateFilter'),
   endDate: document.querySelector('#endDateFilter'),
   cliente: document.querySelector('#clientSearch'),
+  dailyCompare: document.querySelector('#dailyCompareFilter'),
   kpis: document.querySelector('#kpis'),
   askInput: document.querySelector('#askInput'),
   queryAnswer: document.querySelector('#queryAnswer'),
@@ -607,13 +609,13 @@ function renderLine(target, items, comparisons = {}) {
     return { ...set, current, previous, diff };
   });
   el.innerHTML = `<div class="legend daily-compare-legend"><span><i style="background:#6f6a3d"></i>Actual</span>${compareSets.map(set => `<span><i style="background:${set.color}"></i>${escapeHtml(set.label)}</span>`).join('')}</div>
-  <div class="daily-compare-summary">
+  ${summary.length ? `<div class="daily-compare-summary">
     ${summary.map(item => `<article class="${item.diff >= 0 ? 'up' : 'down'}">
       <span>${escapeHtml(item.label)}</span>
       <strong>${item.previous ? `${item.diff >= 0 ? '+' : ''}${money2.format(item.diff)}` : 'sin base'}</strong>
       <small>${item.previous ? `${item.diff >= 0 ? '+' : ''}${percent.format(item.diff / item.previous)} vs ${money2.format(item.previous)}` : 'No hay data comparable'}</small>
     </article>`).join('')}
-  </div>
+  </div>` : `<div class="daily-compare-note">Mostrando únicamente la venta diaria del periodo filtrado.</div>`}
   <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Tendencia diaria">
     <path d="${area}" fill="rgba(20,108,99,.12)"></path>
     ${comparePaths.map(set => set.d ? `<path d="${set.d}" fill="none" stroke="${set.color}" stroke-width="3" stroke-dasharray="${set.dash || 'none'}" stroke-linecap="round"></path>` : '').join('')}
@@ -2156,11 +2158,12 @@ function renderDashboard() {
 
   renderBars('#storeChart', aggregate(records, row => row.sede), { limit: 6 });
   const dailyItems = aggregate(records, row => row.fecha);
+  const dailyCompareSets = [
+    { key: 'previousMonth', label: 'Mes anterior', color: '#8e3f31', dash: '4 6', map: previousMonthCompareMap(dailyItems) },
+    { key: 'lastYear', label: 'Año pasado comparable', color: '#b7995c', dash: '7 7', map: dailyCompareMap(dailyItems) }
+  ].filter(set => state.dailyCompare === 'both' || state.dailyCompare === set.key);
   renderLine('#dailyChart', dailyItems, {
-    sets: [
-      { key: 'previousMonth', label: 'Mes anterior', color: '#8e3f31', dash: '4 6', map: previousMonthCompareMap(dailyItems) },
-      { key: 'lastYear', label: 'Año pasado comparable', color: '#b7995c', dash: '7 7', map: dailyCompareMap(dailyItems) }
-    ]
+    sets: state.dailyCompare === 'none' ? [] : dailyCompareSets
   });
   renderExecutiveMonthlyComparison('#executiveMonthlyChart');
   renderBars('#monthChart', aggregate(records, row => row.mesNombre), { limit: 12 });
@@ -2491,6 +2494,10 @@ function bindEvents() {
   });
   els.cliente.addEventListener('input', event => {
     state.cliente = event.target.value;
+    renderDashboard();
+  });
+  els.dailyCompare?.addEventListener('change', event => {
+    state.dailyCompare = event.target.value;
     renderDashboard();
   });
   document.querySelector('#runAsk')?.addEventListener('click', () => {

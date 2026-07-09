@@ -308,6 +308,36 @@ select, input {
 
 .chart { min-height: 300px; }
 
+.inline-select {
+  display: grid;
+  gap: 5px;
+  min-width: 240px;
+}
+
+.inline-select span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.inline-select select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 38px 0 13px;
+  border: 1px solid rgba(183,153,92,0.34);
+  border-radius: 9px;
+  background:
+    linear-gradient(45deg, transparent 50%, #7a5f52 50%) right 16px center / 6px 6px no-repeat,
+    linear-gradient(135deg, #fffdf8, #f8f2e8);
+  color: #24160f;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 850;
+  appearance: none;
+}
+
 .daily-compare-legend {
   flex-wrap: wrap;
 }
@@ -357,6 +387,17 @@ select, input {
   color: #5f514a;
   font-size: 12px;
   font-weight: 750;
+}
+
+.daily-compare-note {
+  margin: 8px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(183,153,92,0.22);
+  border-radius: 10px;
+  background: #fffdf8;
+  color: #7a5f52;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .bar-row {
@@ -2648,6 +2689,8 @@ main {
 
 @media (max-width: 720px) {
   .premium-topbar { position: static; }
+  .panel-head { align-items: flex-start; flex-direction: column; }
+  .inline-select { width: 100%; }
   .view-switch { width: 100%; }
   .view-button { flex: 1; }
   .premium-filters { position: static; grid-template-columns: 1fr; }

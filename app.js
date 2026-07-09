@@ -291,6 +291,19 @@ function comparableRecordsForCurrent(records) {
   return scoped.filter(row => comparableDates.has(row.fecha));
 }
 
+function sameMonthLastYearRecords(records) {
+  const scoped = comparableScopeRecords();
+  const dates = uniqueSorted(records, 'fecha');
+  if (!dates.length) return [];
+  const first = dates[0];
+  const last = dates.at(-1);
+  const startYear = Number(first.slice(0, 4)) - 1;
+  const endYear = Number(last.slice(0, 4)) - 1;
+  const start = `${startYear}-${first.slice(5)}`;
+  const end = `${endYear}-${last.slice(5)}`;
+  return scoped.filter(row => row.fecha >= start && row.fecha <= end);
+}
+
 function deltaText(current, previous, formatter = number.format) {
   if (!previous) return 'sin base comparable';
   const diff = current - previous;
@@ -548,7 +561,7 @@ function renderBars(target, items, opts = {}) {
   }).join('');
 }
 
-function renderLine(target, items, compareByDate = new Map()) {
+function renderLine(target, items, comparisons = {}) {
   const el = document.querySelector(target);
   if (!el) return;
   const sorted = [...items].sort((a, b) => String(a.name).localeCompare(String(b.name)));
@@ -556,10 +569,14 @@ function renderLine(target, items, compareByDate = new Map()) {
     el.innerHTML = '<div class="empty">Sin datos para este filtro</div>';
     return;
   }
+  const legacyCompare = comparisons instanceof Map ? comparisons : null;
+  const compareSets = legacyCompare
+    ? [{ key: 'ly', label: 'Año pasado comparable', color: '#b7995c', dash: '7 7', map: legacyCompare }]
+    : (comparisons.sets || []).filter(set => set?.map?.size);
   const w = 760;
   const h = 280;
   const pad = 34;
-  const compareValues = sorted.map(item => compareByDate.get(item.name)?.revenue || 0);
+  const compareValues = compareSets.flatMap(set => sorted.map(item => set.map.get(item.name)?.revenue || 0));
   const max = Math.max(...sorted.map(item => item.revenue), ...compareValues, 1);
   const min = Math.min(...sorted.map(item => item.revenue), ...compareValues, 0);
   const span = Math.max(max - min, 1);
@@ -569,23 +586,45 @@ function renderLine(target, items, compareByDate = new Map()) {
     return { x, y, item, value };
   };
   const points = sorted.map((item, idx) => toPoint(item, idx, item.revenue));
-  const comparePoints = sorted.map((item, idx) => {
-    const comparable = compareByDate.get(item.name);
-    return comparable ? toPoint({ ...comparable, currentDate: item.name }, idx, comparable.revenue) : null;
-  }).filter(Boolean);
+  const comparisonPoints = compareSets.map(set => ({
+    ...set,
+    points: sorted.map((item, idx) => {
+      const comparable = set.map.get(item.name);
+      return comparable ? toPoint({ ...comparable, currentDate: item.name }, idx, comparable.revenue) : null;
+    }).filter(Boolean)
+  }));
   const d = points.map((p, idx) => `${idx ? 'L' : 'M'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-  const compareD = comparePoints.map((p, idx) => `${idx ? 'L' : 'M'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  const comparePaths = comparisonPoints.map(set => ({
+    ...set,
+    d: set.points.map((p, idx) => `${idx ? 'L' : 'M'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ')
+  }));
   const area = `${d} L ${points.at(-1).x.toFixed(1)} ${h - pad} L ${points[0].x.toFixed(1)} ${h - pad} Z`;
   const labels = points.filter((_, idx) => idx === 0 || idx === points.length - 1 || idx % Math.ceil(points.length / 6) === 0);
-  el.innerHTML = `<div class="legend"><span><i style="background:#6f6a3d"></i>Actual</span><span><i style="background:#b7995c"></i>Año pasado comparable</span></div>
+  const summary = compareSets.map(set => {
+    const current = sorted.reduce((acc, item) => acc + item.revenue, 0);
+    const previous = sorted.reduce((acc, item) => acc + (set.map.get(item.name)?.revenue || 0), 0);
+    const diff = current - previous;
+    return { ...set, current, previous, diff };
+  });
+  el.innerHTML = `<div class="legend daily-compare-legend"><span><i style="background:#6f6a3d"></i>Actual</span>${compareSets.map(set => `<span><i style="background:${set.color}"></i>${escapeHtml(set.label)}</span>`).join('')}</div>
+  <div class="daily-compare-summary">
+    ${summary.map(item => `<article class="${item.diff >= 0 ? 'up' : 'down'}">
+      <span>${escapeHtml(item.label)}</span>
+      <strong>${item.previous ? `${item.diff >= 0 ? '+' : ''}${money2.format(item.diff)}` : 'sin base'}</strong>
+      <small>${item.previous ? `${item.diff >= 0 ? '+' : ''}${percent.format(item.diff / item.previous)} vs ${money2.format(item.previous)}` : 'No hay data comparable'}</small>
+    </article>`).join('')}
+  </div>
   <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Tendencia diaria">
     <path d="${area}" fill="rgba(20,108,99,.12)"></path>
-    ${compareD ? `<path d="${compareD}" fill="none" stroke="#b7995c" stroke-width="3" stroke-dasharray="7 7" stroke-linecap="round"></path>` : ''}
+    ${comparePaths.map(set => set.d ? `<path d="${set.d}" fill="none" stroke="${set.color}" stroke-width="3" stroke-dasharray="${set.dash || 'none'}" stroke-linecap="round"></path>` : '').join('')}
     <path d="${d}" fill="none" stroke="#6f6a3d" stroke-width="3" stroke-linecap="round"></path>
-    ${comparePoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#b7995c"><title>${p.item.name}: ${money2.format(p.value)}</title></circle>`).join('')}
+    ${comparisonPoints.map(set => set.points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="${set.color}"><title>${set.label} ${p.item.name}: ${money2.format(p.value)}</title></circle>`).join('')).join('')}
     ${points.map(p => {
-      const comparable = compareByDate.get(p.item.name);
-      return `<circle class="line-point" cx="${p.x}" cy="${p.y}" r="5" fill="#6f6a3d" data-date="${escapeHtml(p.item.name)}" data-sales="${escapeHtml(money2.format(p.item.revenue))}" data-tx="${p.item.tx}" data-comp-date="${escapeHtml(comparable?.name || '')}" data-comp-sales="${escapeHtml(comparable ? money2.format(comparable.revenue) : 'sin data')}" data-comp-tx="${comparable?.tx || 0}"><title>${p.item.name}: ${money2.format(p.item.revenue)}</title></circle>`;
+      const details = compareSets.map(set => {
+        const comparable = set.map.get(p.item.name);
+        return `${set.label}|${comparable?.name || ''}|${comparable ? money2.format(comparable.revenue) : 'sin data'}|${comparable?.tx || 0}`;
+      }).join('~~');
+      return `<circle class="line-point" cx="${p.x}" cy="${p.y}" r="5" fill="#6f6a3d" data-date="${escapeHtml(p.item.name)}" data-sales="${escapeHtml(money2.format(p.item.revenue))}" data-tx="${p.item.tx}" data-compare="${escapeHtml(details)}"><title>${p.item.name}: ${money2.format(p.item.revenue)}</title></circle>`;
     }).join('')}
     <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="#ddd8d0"></line>
     ${labels.map(p => `<text x="${p.x}" y="${h - 8}" text-anchor="middle" class="axis">${p.item.name.slice(5)}</text>`).join('')}
@@ -598,7 +637,11 @@ function renderLine(target, items, compareByDate = new Map()) {
   el.querySelectorAll('.line-point').forEach(point => {
     point.addEventListener('mouseenter', () => {
       tooltip.hidden = false;
-      tooltip.innerHTML = `<strong>${point.dataset.date}</strong>Actual: ${point.dataset.sales}<br>${number.format(Number(point.dataset.tx))} transacciones<br><br><strong>${point.dataset.compDate || 'Comparable LY'}</strong>LY comp: ${point.dataset.compSales}<br>${number.format(Number(point.dataset.compTx || 0))} transacciones`;
+      const compareHtml = (point.dataset.compare || '').split('~~').filter(Boolean).map(raw => {
+        const [label, date, sales, tx] = raw.split('|');
+        return `<br><strong>${escapeHtml(label)} ${escapeHtml(date || '')}</strong>${escapeHtml(sales)}<br>${number.format(Number(tx || 0))} transacciones`;
+      }).join('');
+      tooltip.innerHTML = `<strong>${point.dataset.date}</strong>Actual: ${point.dataset.sales}<br>${number.format(Number(point.dataset.tx))} transacciones${compareHtml}`;
     });
     point.addEventListener('mousemove', event => {
       const rect = el.getBoundingClientRect();
@@ -719,6 +762,8 @@ function renderExecutiveSummaryCards(records) {
   const el = document.querySelector('#executiveSummaryCards');
   if (!el) return;
   const compare = comparableRecordsForCurrent(records);
+  const lifecycleCompareRows = lifecycleSalesBreakdown(sameMonthLastYearRecords(records));
+  const lifecycleCompareByKey = new Map(lifecycleCompareRows.map(row => [row.key, row]));
   const lifecycle = lifecycleSalesBreakdown(records);
   const totalRevenue = sum(records);
   const storeCards = aggregate(records, row => row.sede)
@@ -743,8 +788,12 @@ function renderExecutiveSummaryCards(records) {
     value: row.venta,
     tx: row.tx,
     clients: row.clientes.size,
+    previous: lifecycleCompareByKey.get(row.key)?.venta || 0,
     share: lifecycleTotal ? row.venta / lifecycleTotal : 0
   }));
+  const lifecycleBottleneck = lifecycleRows
+    .map(row => ({ ...row, diff: row.value - row.previous }))
+    .sort((a, b) => a.diff - b.diff)[0];
   let offset = 0;
   const donutSegments = lifecycleRows.map(row => {
     const start = offset;
@@ -767,7 +816,7 @@ function renderExecutiveSummaryCards(records) {
         <div>
           <span class="exec-summary-kicker">Lifecycle del mes</span>
           <strong>${money2.format(lifecycleTotal)}</strong>
-          <small>Nuevos, continuidad, reactivación y resurrección.</small>
+          <small>${lifecycleBottleneck && lifecycleBottleneck.diff < 0 ? `Cuello de botella: ${lifecycleBottleneck.label} cae ${money2.format(Math.abs(lifecycleBottleneck.diff))} vs mismo periodo LY.` : 'Sin caída de lifecycle vs mismo periodo LY.'}</small>
         </div>
         <div class="lifecycle-donut" style="background:conic-gradient(${donutSegments || '#e6dac5 0 100%'})">
           <span>${number.format(lifecycleRows.reduce((acc, row) => acc + row.clients, 0))}<small>clientes</small></span>
@@ -777,7 +826,8 @@ function renderExecutiveSummaryCards(records) {
         ${lifecycleRows.map(row => `<div class="lifecycle-stage lifecycle-${row.key}">
           <span>${escapeHtml(row.label)}</span>
           <strong>${money2.format(row.value)}</strong>
-          <small>${percent.format(row.share)} · ${number.format(row.tx)} tx · ${number.format(row.clients)} clientes</small>
+          <em class="lifecycle-stage-delta ${row.previous ? (row.value >= row.previous ? 'up' : 'down') : 'flat'}">${row.previous ? `${row.value >= row.previous ? '+' : ''}${percent.format((row.value - row.previous) / row.previous)} vs LY` : 'sin base LY'}</em>
+          <small>${percent.format(row.share)} · ${number.format(row.tx)} tx · ${number.format(row.clients)} clientes<br>LY: ${money2.format(row.previous)}</small>
           <i><b style="width:${Math.max(4, row.share * 100).toFixed(1)}%"></b></i>
         </div>`).join('')}
       </div>
@@ -1808,7 +1858,7 @@ function classifyTransactionsByLifecycle(records) {
 
 function renderLifecycleBreakdown(records) {
   const rows = lifecycleSalesBreakdown(records);
-  const compareRows = lifecycleSalesBreakdown(comparableRecordsForCurrent(records));
+  const compareRows = lifecycleSalesBreakdown(sameMonthLastYearRecords(records));
   const compareByKey = new Map(compareRows.map(row => [row.key, row]));
   const total = rows.reduce((acc, row) => acc + row.venta, 0);
   const baseRows = customerBaseLifecycle(records);
@@ -1986,6 +2036,22 @@ function dailyCompareMap(currentDailyItems) {
   return map;
 }
 
+function previousMonthCompareMap(currentDailyItems) {
+  const scoped = comparableScopeRecords();
+  const byDate = new Map(aggregate(scoped, row => row.fecha).map(item => [item.name, item]));
+  const map = new Map();
+  for (const item of currentDailyItems) {
+    const [year, month, day] = item.name.split('-').map(Number);
+    const expectedMonth = new Date(year, month - 2, 1).getMonth();
+    const previous = new Date(year, month - 2, day);
+    if (previous.getMonth() !== expectedMonth) continue;
+    const previousDate = formatDate(previous);
+    const comp = byDate.get(previousDate);
+    if (comp) map.set(item.name, { ...comp, name: previousDate });
+  }
+  return map;
+}
+
 function rowsForDateRange(records, start, end) {
   return records.filter(row => row.fecha >= start && row.fecha <= end);
 }
@@ -2090,7 +2156,12 @@ function renderDashboard() {
 
   renderBars('#storeChart', aggregate(records, row => row.sede), { limit: 6 });
   const dailyItems = aggregate(records, row => row.fecha);
-  renderLine('#dailyChart', dailyItems, dailyCompareMap(dailyItems));
+  renderLine('#dailyChart', dailyItems, {
+    sets: [
+      { key: 'previousMonth', label: 'Mes anterior', color: '#8e3f31', dash: '4 6', map: previousMonthCompareMap(dailyItems) },
+      { key: 'lastYear', label: 'Año pasado comparable', color: '#b7995c', dash: '7 7', map: dailyCompareMap(dailyItems) }
+    ]
+  });
   renderExecutiveMonthlyComparison('#executiveMonthlyChart');
   renderBars('#monthChart', aggregate(records, row => row.mesNombre), { limit: 12 });
   renderBars('#weekChart', aggregate(records, row => weekFullLabel(row.semana)), { limit: 16 });

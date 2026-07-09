@@ -461,6 +461,70 @@ function renderIncrementalImpact() {
   `;
 }
 
+function renderTargetPacing(records) {
+  const el = document.querySelector('#targetPacing');
+  if (!el) return;
+  const monthlyTarget = 300000;
+  const dailyFloor = 8000;
+  const dates = uniqueSorted(records, 'fecha');
+  if (!dates.length) {
+    el.innerHTML = '<div class="empty">Sin datos para medir meta mensual</div>';
+    return;
+  }
+  const activeMonth = state.mes !== 'all' ? state.mes : dates.at(-1).slice(0, 7);
+  const monthRows = comparableScopeRecords().filter(row => row.mes === activeMonth);
+  const monthDates = uniqueSorted(monthRows, 'fecha');
+  const monthRevenue = sum(monthRows);
+  const lastDate = monthDates.at(-1) || `${activeMonth}-01`;
+  const [year, month] = activeMonth.split('-').map(Number);
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const elapsedDays = Math.max(1, Number(lastDate.slice(8, 10)));
+  const remainingDays = Math.max(0, daysInMonth - elapsedDays);
+  const minExpected = elapsedDays * dailyFloor;
+  const targetExpected = monthlyTarget * elapsedDays / daysInMonth;
+  const dailyAvg = monthRevenue / elapsedDays;
+  const projected = dailyAvg * daysInMonth;
+  const gapVsFloor = monthRevenue - minExpected;
+  const gapVsTarget = monthRevenue - targetExpected;
+  const remainingToTarget = Math.max(0, monthlyTarget - monthRevenue);
+  const requiredDaily = remainingDays ? remainingToTarget / remainingDays : remainingToTarget;
+  const floorStatus = gapVsFloor >= 0 ? 'ahead' : 'behind';
+  const targetStatus = projected >= monthlyTarget ? 'ahead' : 'behind';
+  const progress = Math.min(100, monthRevenue / monthlyTarget * 100);
+  const leakLabel = gapVsFloor >= 0 ? 'colchón vs mínimo' : 'fuga vs mínimo';
+  const leakValue = Math.abs(gapVsFloor);
+  const periodLabel = `${optionLabel('mes', activeMonth)} · corte ${lastDate}`;
+
+  el.innerHTML = `
+    <article class="target-main-card ${targetStatus}">
+      <div>
+        <span class="target-kicker">Meta mensual</span>
+        <strong>${money.format(monthRevenue)}</strong>
+        <small>${periodLabel}</small>
+      </div>
+      <div class="target-progress">
+        <i style="width:${progress.toFixed(1)}%"></i>
+      </div>
+      <p>${percent.format(monthRevenue / monthlyTarget)} de ${money.format(monthlyTarget)} · proyección ${money.format(projected)}</p>
+    </article>
+    <article class="target-mini-card ${floorStatus}">
+      <span>${leakLabel}</span>
+      <strong>${gapVsFloor >= 0 ? '+' : '-'}${money.format(leakValue)}</strong>
+      <small>Mínimo esperado: ${money.format(minExpected)} (${number.format(elapsedDays)} días x ${money.format(dailyFloor)})</small>
+    </article>
+    <article class="target-mini-card ${gapVsTarget >= 0 ? 'ahead' : 'behind'}">
+      <span>Brecha proporcional</span>
+      <strong>${gapVsTarget >= 0 ? '+' : '-'}${money.format(Math.abs(gapVsTarget))}</strong>
+      <small>Contra avance ideal de la meta mensual.</small>
+    </article>
+    <article class="target-mini-card ${requiredDaily <= dailyFloor ? 'ahead' : 'behind'}">
+      <span>Necesario diario</span>
+      <strong>${money.format(requiredDaily)}</strong>
+      <small>Promedio requerido en ${number.format(remainingDays)} días restantes.</small>
+    </article>
+  `;
+}
+
 function renderBars(target, items, opts = {}) {
   const el = document.querySelector(target);
   if (!el) return;
@@ -642,6 +706,15 @@ function renderExecutiveMonthlyComparison(target) {
     </svg>`;
 }
 
+function lifecycleColor(key) {
+  return {
+    nuevo: '#0f7a50',
+    continuidad: '#b7995c',
+    reactivacion: '#7a5f52',
+    resurreccion: '#8e3f31'
+  }[key] || '#e1d4bf';
+}
+
 function renderExecutiveSummaryCards(records) {
   const el = document.querySelector('#executiveSummaryCards');
   if (!el) return;
@@ -665,10 +738,20 @@ function renderExecutiveSummaryCards(records) {
     });
   const lifecycleTotal = lifecycle.reduce((acc, row) => acc + row.venta, 0);
   const lifecycleRows = lifecycle.map(row => ({
+    key: row.key,
     label: row.label,
     value: row.venta,
+    tx: row.tx,
+    clients: row.clientes.size,
     share: lifecycleTotal ? row.venta / lifecycleTotal : 0
   }));
+  let offset = 0;
+  const donutSegments = lifecycleRows.map(row => {
+    const start = offset;
+    const end = offset + row.share;
+    offset = end;
+    return `${lifecycleColor(row.key)} ${Math.max(0, start * 100).toFixed(2)}% ${Math.min(100, end * 100).toFixed(2)}%`;
+  }).join(', ');
   el.innerHTML = `${storeCards.map(card => `<article class="exec-summary-card">
       <span class="exec-summary-kicker">${escapeHtml(card.title)}</span>
       <strong>${money2.format(card.revenue)}</strong>
@@ -680,14 +763,22 @@ function renderExecutiveSummaryCards(records) {
       </div>
     </article>`).join('')}
     <article class="exec-summary-card lifecycle-exec-card">
-      <span class="exec-summary-kicker">Lifecycle del mes</span>
-      <strong>${money2.format(lifecycleTotal)}</strong>
-      <small>La suma coincide con la venta filtrada por lifecycle.</small>
-      <div class="lifecycle-mini-bars">
-        ${lifecycleRows.map(row => `<div>
+      <div class="lifecycle-exec-head">
+        <div>
+          <span class="exec-summary-kicker">Lifecycle del mes</span>
+          <strong>${money2.format(lifecycleTotal)}</strong>
+          <small>Nuevos, continuidad, reactivación y resurrección.</small>
+        </div>
+        <div class="lifecycle-donut" style="background:conic-gradient(${donutSegments || '#e6dac5 0 100%'})">
+          <span>${number.format(lifecycleRows.reduce((acc, row) => acc + row.clients, 0))}<small>clientes</small></span>
+        </div>
+      </div>
+      <div class="lifecycle-stage-grid">
+        ${lifecycleRows.map(row => `<div class="lifecycle-stage lifecycle-${row.key}">
           <span>${escapeHtml(row.label)}</span>
+          <strong>${money2.format(row.value)}</strong>
+          <small>${percent.format(row.share)} · ${number.format(row.tx)} tx · ${number.format(row.clients)} clientes</small>
           <i><b style="width:${Math.max(4, row.share * 100).toFixed(1)}%"></b></i>
-          <em>${percent.format(row.share)} · ${money.format(row.value)}</em>
         </div>`).join('')}
       </div>
     </article>`;
@@ -1989,6 +2080,7 @@ function renderDashboard() {
   const records = filteredRecords();
   const summary = renderKpis(records);
   renderIncrementalImpact();
+  renderTargetPacing(records);
   renderJuneYoy();
   renderLifecycleTop(records);
   renderExecutiveSummaryCards(records);

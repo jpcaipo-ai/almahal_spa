@@ -1944,6 +1944,86 @@ main {
   margin-bottom: 18px;
 }
 
+.target-pacing-panel {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.35fr) repeat(3, minmax(180px, 0.72fr));
+  gap: 16px;
+  margin: 0 0 18px;
+}
+
+.target-main-card,
+.target-mini-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid rgba(183,153,92,0.28);
+  border-radius: 14px;
+  background: rgba(255,253,248,0.94);
+  box-shadow: 0 16px 38px rgba(36,22,15,0.07);
+}
+
+.target-main-card {
+  background:
+    radial-gradient(circle at 92% 18%, rgba(183,153,92,0.23), transparent 34%),
+    linear-gradient(135deg, rgba(36,22,15,0.96), rgba(71,47,35,0.92));
+  color: #fffaf1;
+}
+
+.target-kicker,
+.target-mini-card span {
+  display: block;
+  color: #b7995c;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.target-main-card strong,
+.target-mini-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: clamp(26px, 2.8vw, 42px);
+  line-height: 1;
+}
+
+.target-main-card small,
+.target-main-card p,
+.target-mini-card small {
+  display: block;
+  margin: 10px 0 0;
+  color: #f4eddf;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.target-mini-card small {
+  color: #7a5f52;
+}
+
+.target-mini-card.behind strong {
+  color: #8e3f31;
+}
+
+.target-mini-card.ahead strong {
+  color: #0f7a50;
+}
+
+.target-progress {
+  height: 12px;
+  overflow: hidden;
+  margin-top: 18px;
+  border-radius: 999px;
+  background: rgba(255,250,241,0.18);
+}
+
+.target-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #b7995c, #f2d89c);
+}
+
 .exec-summary-card {
   min-width: 0;
   padding: 22px;
@@ -2006,50 +2086,127 @@ main {
 }
 
 .lifecycle-exec-card {
-  background: linear-gradient(135deg, rgba(11,91,77,0.06), rgba(212,167,94,0.13)), #fffdf8;
+  grid-column: 1 / -1;
+  padding: 26px;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(183,153,92,0.24), transparent 32%),
+    linear-gradient(135deg, rgba(11,91,77,0.08), rgba(212,167,94,0.14)),
+    #fffdf8;
 }
 
-.lifecycle-mini-bars {
+.lifecycle-exec-head {
   display: grid;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.lifecycle-mini-bars div {
-  display: grid;
-  grid-template-columns: 110px minmax(0, 1fr) 108px;
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) 148px;
+  gap: 22px;
   align-items: center;
 }
 
-.lifecycle-mini-bars span {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
+.lifecycle-exec-head strong {
+  display: block;
+  margin-top: 14px;
+  color: #24160f;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 0.95;
 }
 
-.lifecycle-mini-bars i {
+.lifecycle-exec-head small {
   display: block;
-  height: 9px;
+  margin-top: 10px;
+  color: #7a5f52;
+  font-weight: 750;
+}
+
+.lifecycle-donut {
+  display: grid;
+  width: 148px;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 18px rgba(255,253,248,0.92), 0 16px 34px rgba(36,22,15,0.12);
+}
+
+.lifecycle-donut span {
+  display: grid;
+  width: 92px;
+  aspect-ratio: 1;
+  place-items: center;
+  color: #24160f;
+  border-radius: 50%;
+  background: #fffdf8;
+  font-size: 25px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.lifecycle-donut small {
+  margin: 0;
+  color: #7a5f52;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.lifecycle-stage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.lifecycle-stage {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(183,153,92,0.24);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.64);
+}
+
+.lifecycle-stage span,
+.lifecycle-stage strong,
+.lifecycle-stage small {
+  display: block;
+}
+
+.lifecycle-stage span {
+  color: #7a5f52;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.lifecycle-stage strong {
+  margin-top: 9px;
+  color: #24160f;
+  font-size: clamp(20px, 2vw, 30px);
+  line-height: 1;
+}
+
+.lifecycle-stage small {
+  margin-top: 8px;
+  color: #5f514a;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.lifecycle-stage i {
+  display: block;
+  height: 8px;
   overflow: hidden;
+  margin-top: 14px;
   border-radius: 999px;
   background: #eee6d8;
 }
 
-.lifecycle-mini-bars b {
+.lifecycle-stage b {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #0b5b4d;
+  background: #0f7a50;
 }
 
-.lifecycle-mini-bars em {
-  color: #050505;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 800;
-  text-align: right;
-}
+.lifecycle-stage.lifecycle-continuidad b { background: #b7995c; }
+.lifecycle-stage.lifecycle-reactivacion b { background: #7a5f52; }
+.lifecycle-stage.lifecycle-resurreccion b { background: #8e3f31; }
 
 .panel {
   border-radius: 10px;
@@ -2391,6 +2548,8 @@ main {
   .premium-topbar { grid-template-columns: 1fr; }
   .view-switch { width: fit-content; }
   .premium-filters { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
+  .target-pacing-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .target-main-card { grid-column: 1 / -1; }
   .review-hero, .lab-hero, .review-main, .compact-review { grid-template-columns: 1fr; }
   .review-hero > div:first-child,
   .lab-hero > div:first-child,
@@ -2419,6 +2578,7 @@ main {
   .view-switch { width: 100%; }
   .view-button { flex: 1; }
   .premium-filters { position: static; grid-template-columns: 1fr; }
+  .target-pacing-panel { grid-template-columns: 1fr; }
   .executive-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .incremental-impact {
     grid-template-columns: 1fr;
@@ -2435,8 +2595,8 @@ main {
     min-height: 58px;
   }
   .query-box, .query-answer-grid { grid-template-columns: 1fr; }
-  .exec-summary-meta, .lifecycle-mini-bars div { grid-template-columns: 1fr; }
-  .lifecycle-mini-bars em { text-align: left; }
+  .exec-summary-meta, .lifecycle-exec-head, .lifecycle-stage-grid { grid-template-columns: 1fr; }
+  .lifecycle-donut { width: 128px; }
   .review-hero h2, .lab-hero h2 { font-size: 34px; }
 }
 

@@ -684,7 +684,7 @@ function renderMonthTrendWidget(records) {
     return;
   }
   const endMonth = state.mes !== 'all' ? state.mes : dates.at(-1).slice(0, 7);
-  const months = [-2, -1, 0].map(offset => monthOffset(endMonth, offset));
+  const months = [-3, -2, -1, 0].map(offset => monthOffset(endMonth, offset));
   const segment = state.monthTrendSegment || 'total';
   const segmentLabels = {
     total: 'Venta total',
@@ -736,7 +736,7 @@ function renderMonthTrendWidget(records) {
         </article>`;
       }).join('')}
     </div>
-    <svg class="month-trend-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Tendencia últimos tres meses">
+    <svg class="month-trend-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Tendencia últimos cuatro meses">
       ${rows.map((row, idx) => {
         const x = pad + idx * slot + (slot - barW) / 2;
         const barH = (row.value / max) * (h - pad * 2);

@@ -14,6 +14,7 @@ const state = {
   qualityAdvisor: 'all',
   focusAdvisor: '',
   dailyCompare: 'both',
+  monthTrendSegment: 'total',
   view: 'review',
   ask: ''
 };
@@ -28,6 +29,7 @@ const els = {
   endDate: document.querySelector('#endDateFilter'),
   cliente: document.querySelector('#clientSearch'),
   dailyCompare: document.querySelector('#dailyCompareFilter'),
+  monthTrendSegment: document.querySelector('#monthTrendSegmentFilter'),
   kpis: document.querySelector('#kpis'),
   askInput: document.querySelector('#askInput'),
   queryAnswer: document.querySelector('#queryAnswer'),
@@ -653,6 +655,98 @@ function renderMayBenchmark(records) {
         return rowCard(row, mayRow);
       }).join('')}
     </div>
+  `;
+}
+
+function monthOffset(monthValue, offset) {
+  const [year, month] = monthValue.split('-').map(Number);
+  const date = new Date(year, month - 1 + offset, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthTrendValue(rows, segment) {
+  if (segment === 'total') return { value: sum(rows), tx: txCount(rows), clients: clientCount(rows) };
+  const lifecycle = lifecycleSalesBreakdown(rows).find(row => row.key === segment);
+  return {
+    value: lifecycle?.venta || 0,
+    tx: lifecycle?.tx || 0,
+    clients: lifecycle?.clientes?.size || 0
+  };
+}
+
+function renderMonthTrendWidget(records) {
+  const el = document.querySelector('#monthTrendWidget');
+  if (!el) return;
+  const scoped = comparableScopeRecords();
+  const dates = uniqueSorted(scoped, 'fecha');
+  if (!dates.length) {
+    el.innerHTML = '<div class="empty">Sin datos para tendencia mensual</div>';
+    return;
+  }
+  const endMonth = state.mes !== 'all' ? state.mes : dates.at(-1).slice(0, 7);
+  const months = [-2, -1, 0].map(offset => monthOffset(endMonth, offset));
+  const segment = state.monthTrendSegment || 'total';
+  const segmentLabels = {
+    total: 'Venta total',
+    nuevo: 'Nuevos',
+    continuidad: 'Continuidad',
+    reactivacion: 'Reactivación',
+    resurreccion: 'Resurrección'
+  };
+  const rows = months.map(month => {
+    const monthRows = scoped.filter(row => row.mes === month);
+    const metric = monthTrendValue(monthRows, segment);
+    return {
+      month,
+      label: optionLabel('mes', month),
+      ...metric
+    };
+  });
+  const max = Math.max(...rows.map(row => row.value), 1);
+  const last = rows.at(-1);
+  const previous = rows.at(-2);
+  const delta = last.value - previous.value;
+  const deltaPct = previous.value ? delta / previous.value : 0;
+  const w = 560;
+  const h = 190;
+  const pad = 28;
+  const slot = (w - pad * 2) / rows.length;
+  const barW = Math.min(92, slot * 0.44);
+  const points = rows.map((row, idx) => ({
+    row,
+    x: pad + idx * slot + slot / 2,
+    y: h - pad - (row.value / max) * (h - pad * 2)
+  }));
+  const line = points.map((point, idx) => `${idx ? 'L' : 'M'} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(' ');
+  el.innerHTML = `
+    <div class="month-trend-copy ${delta >= 0 ? 'up' : 'down'}">
+      <span>${escapeHtml(segmentLabels[segment] || 'Venta total')}</span>
+      <strong>${money2.format(last.value)}</strong>
+      <small>${last.label} · ${delta >= 0 ? '+' : '-'}${money2.format(Math.abs(delta))} vs mes anterior ${previous.value ? `(${delta >= 0 ? '+' : ''}${percent.format(deltaPct)})` : ''}</small>
+    </div>
+    <div class="month-trend-cards">
+      ${rows.map((row, idx) => {
+        const prev = rows[idx - 1];
+        const diff = prev ? row.value - prev.value : 0;
+        return `<article class="${idx && diff < 0 ? 'down' : 'up'}">
+          <span>${escapeHtml(row.label)}</span>
+          <strong>${money2.format(row.value)}</strong>
+          <small>${number.format(row.tx)} tx · ${number.format(row.clients)} clientes${idx ? ` · ${diff >= 0 ? '+' : '-'}${money.format(Math.abs(diff))}` : ''}</small>
+          <i><b style="width:${Math.max(4, row.value / max * 100).toFixed(1)}%"></b></i>
+        </article>`;
+      }).join('')}
+    </div>
+    <svg class="month-trend-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Tendencia últimos tres meses">
+      ${rows.map((row, idx) => {
+        const x = pad + idx * slot + (slot - barW) / 2;
+        const barH = (row.value / max) * (h - pad * 2);
+        const y = h - pad - barH;
+        return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" rx="8" fill="#d9c293" opacity="0.42"></rect>
+          <text x="${(x + barW / 2).toFixed(1)}" y="${h - 8}" text-anchor="middle" class="axis">${escapeHtml(row.label.slice(0, 3))}</text>`;
+      }).join('')}
+      <path d="${line}" fill="none" stroke="#6f6a3d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+      ${points.map(point => `<circle cx="${point.x}" cy="${point.y}" r="6" fill="#6f6a3d"><title>${point.row.label}: ${money2.format(point.row.value)}</title></circle>`).join('')}
+    </svg>
   `;
 }
 
@@ -2265,6 +2359,7 @@ function renderDashboard() {
   const summary = renderKpis(records);
   renderIncrementalImpact();
   renderTargetPacing(records);
+  renderMonthTrendWidget(records);
   renderMayBenchmark(records);
   renderJuneYoy();
   renderLifecycleTop(records);
@@ -2615,6 +2710,10 @@ function bindEvents() {
   });
   els.dailyCompare?.addEventListener('change', event => {
     state.dailyCompare = event.target.value;
+    renderDashboard();
+  });
+  els.monthTrendSegment?.addEventListener('change', event => {
+    state.monthTrendSegment = event.target.value;
     renderDashboard();
   });
   document.querySelector('#runAsk')?.addEventListener('click', () => {

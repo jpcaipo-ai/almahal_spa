@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Almahal Growth Review</title>
-  <link rel="stylesheet" href="styles.css?v=may-benchmark">
+  <link rel="stylesheet" href="styles.css?v=three-month-trend">
 </head>
 <body>
   <header class="topbar premium-topbar">
@@ -19,7 +19,7 @@
       <button id="exportCsv" class="view-button export-view-button" type="button" title="Exportar tabla filtrada">Exportar</button>
     </nav>
     <div class="top-actions">
-      <span class="updated-pill">Actualizado: 02/07/2026</span>
+      <span class="updated-pill">Actualizado: 21/07/2026</span>
       <button id="resetFilters" type="button" title="Limpiar todos los filtros">Limpiar</button>
     </div>
   </header>
@@ -51,6 +51,26 @@
       </section>
 
       <section class="target-pacing-panel" id="targetPacing" aria-label="Meta mensual y fuga comercial"></section>
+
+      <section class="panel month-trend-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Tendencia últimos 3 meses</h2>
+            <span>total o ciclo de vida, según filtros activos</span>
+          </div>
+          <label class="inline-select compact">
+            <span>Ver</span>
+            <select id="monthTrendSegmentFilter">
+              <option value="total">Venta total</option>
+              <option value="nuevo">Nuevos</option>
+              <option value="continuidad">Continuidad</option>
+              <option value="reactivacion">Reactivación</option>
+              <option value="resurreccion">Resurrección</option>
+            </select>
+          </label>
+        </div>
+        <div id="monthTrendWidget" class="month-trend-widget"></div>
+      </section>
 
       <section class="panel may-benchmark-panel">
         <div class="panel-head">
@@ -294,7 +314,7 @@
 
   <script src="sales-data.js?v=20260721"></script>
   <script src="quality-data.js?v=20260713"></script>
-  <script src="app.js?v=may-benchmark"></script>
+  <script src="app.js?v=three-month-trend"></script>
 </body>
 </html>
 

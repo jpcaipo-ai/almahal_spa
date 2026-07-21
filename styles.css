@@ -314,6 +314,10 @@ select, input {
   min-width: 240px;
 }
 
+.inline-select.compact {
+  min-width: 210px;
+}
+
 .inline-select span {
   color: var(--muted);
   font-size: 10px;
@@ -2116,6 +2120,142 @@ main {
   background: linear-gradient(90deg, #b7995c, #f2d89c);
 }
 
+.month-trend-panel {
+  margin-bottom: 18px;
+}
+
+.month-trend-widget {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.68fr) minmax(320px, 1.18fr) minmax(300px, 0.96fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.month-trend-copy,
+.month-trend-cards article {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(183,153,92,0.26);
+  border-radius: 14px;
+  background: #fffdf8;
+  box-shadow: 0 16px 36px rgba(36,22,15,0.06);
+}
+
+.month-trend-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 88% 20%, rgba(183,153,92,0.22), transparent 33%),
+    linear-gradient(135deg, rgba(255,253,248,0.98), rgba(248,242,232,0.94));
+}
+
+.month-trend-copy::after,
+.month-trend-cards article::after {
+  content: "";
+  position: absolute;
+  right: -36px;
+  bottom: -48px;
+  width: 118px;
+  height: 118px;
+  border-radius: 999px;
+  background: rgba(15,122,80,0.10);
+}
+
+.month-trend-copy.down::after,
+.month-trend-cards article.down::after {
+  background: rgba(142,63,49,0.11);
+}
+
+.month-trend-copy span,
+.month-trend-cards span {
+  display: block;
+  color: #7a5f52;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.month-trend-copy strong {
+  display: block;
+  margin-top: 10px;
+  color: #0b4f3a;
+  font-size: clamp(30px, 3.1vw, 48px);
+  line-height: 1;
+}
+
+.month-trend-copy.down strong {
+  color: #8e3f31;
+}
+
+.month-trend-copy small,
+.month-trend-cards small {
+  display: block;
+  margin-top: 10px;
+  color: #5f514a;
+  font-size: 12px;
+  font-weight: 780;
+  line-height: 1.35;
+}
+
+.month-trend-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.month-trend-cards strong {
+  display: block;
+  margin-top: 8px;
+  color: #24160f;
+  font-size: clamp(20px, 1.8vw, 29px);
+  line-height: 1;
+}
+
+.month-trend-cards article.down strong {
+  color: #8e3f31;
+}
+
+.month-trend-cards i {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  margin-top: 14px;
+  border-radius: 999px;
+  background: rgba(183,153,92,0.18);
+}
+
+.month-trend-cards b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0f7a50, #b7995c);
+}
+
+.month-trend-cards article.down b {
+  background: linear-gradient(90deg, #8e3f31, #d9a257);
+}
+
+.month-trend-chart {
+  width: 100%;
+  min-height: 190px;
+  padding: 8px;
+  border: 1px solid rgba(183,153,92,0.24);
+  border-radius: 14px;
+  background:
+    linear-gradient(rgba(183,153,92,0.13) 1px, transparent 1px) 0 31px / 100% 42px,
+    linear-gradient(180deg, #fffdf8, #fbf6ed);
+}
+
+.month-trend-chart .axis {
+  fill: #7a5f52;
+  font-size: 11px;
+  font-weight: 850;
+}
+
 .may-benchmark-panel {
   margin-bottom: 18px;
 }
@@ -2755,6 +2895,7 @@ main {
   .premium-filters { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
   .target-pacing-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .target-main-card { grid-column: 1 / -1; }
+  .month-trend-widget { grid-template-columns: 1fr; }
   .may-benchmark-head, .may-benchmark-grid, .may-benchmark-grid.lifecycle { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .review-hero, .lab-hero, .review-main, .compact-review { grid-template-columns: 1fr; }
   .review-hero > div:first-child,
@@ -2787,6 +2928,7 @@ main {
   .view-button { flex: 1; }
   .premium-filters { position: static; grid-template-columns: 1fr; }
   .target-pacing-panel { grid-template-columns: 1fr; }
+  .month-trend-cards { grid-template-columns: 1fr; }
   .may-benchmark-head, .may-benchmark-grid, .may-benchmark-grid.lifecycle { grid-template-columns: 1fr; }
   .daily-compare-summary { grid-template-columns: 1fr; }
   .executive-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }

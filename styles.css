@@ -2116,6 +2116,97 @@ main {
   background: linear-gradient(90deg, #b7995c, #f2d89c);
 }
 
+.may-benchmark-panel {
+  margin-bottom: 18px;
+}
+
+.may-benchmark {
+  display: grid;
+  gap: 14px;
+}
+
+.may-benchmark-head,
+.may-benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.may-benchmark-grid.lifecycle {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.may-benchmark-head article,
+.may-segment-card,
+.may-benchmark-note {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid rgba(183,153,92,0.25);
+  border-radius: 12px;
+  background: #fffdf8;
+}
+
+.may-benchmark-head span,
+.may-segment-card span {
+  display: block;
+  color: #7a5f52;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.may-benchmark-head strong,
+.may-segment-card strong {
+  display: block;
+  margin-top: 8px;
+  color: #24160f;
+  font-size: clamp(20px, 2vw, 30px);
+  line-height: 1;
+}
+
+.may-benchmark-head small,
+.may-segment-card small {
+  display: block;
+  margin-top: 8px;
+  color: #5f514a;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.may-segment-card em {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #0f7a50;
+  background: rgba(15,122,80,0.12);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.may-segment-card.down em,
+.may-benchmark-head article.down strong {
+  color: #8e3f31;
+}
+
+.may-segment-card.down em {
+  background: rgba(142,63,49,0.13);
+}
+
+.may-benchmark-note {
+  border-left: 5px solid #8e3f31;
+  color: #5f514a;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.may-benchmark-note strong {
+  color: #24160f;
+}
+
 .exec-summary-card {
   min-width: 0;
   padding: 22px;
@@ -2664,6 +2755,7 @@ main {
   .premium-filters { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
   .target-pacing-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .target-main-card { grid-column: 1 / -1; }
+  .may-benchmark-head, .may-benchmark-grid, .may-benchmark-grid.lifecycle { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .review-hero, .lab-hero, .review-main, .compact-review { grid-template-columns: 1fr; }
   .review-hero > div:first-child,
   .lab-hero > div:first-child,
@@ -2695,6 +2787,7 @@ main {
   .view-button { flex: 1; }
   .premium-filters { position: static; grid-template-columns: 1fr; }
   .target-pacing-panel { grid-template-columns: 1fr; }
+  .may-benchmark-head, .may-benchmark-grid, .may-benchmark-grid.lifecycle { grid-template-columns: 1fr; }
   .daily-compare-summary { grid-template-columns: 1fr; }
   .executive-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .incremental-impact {

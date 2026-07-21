@@ -540,6 +540,122 @@ function renderTargetPacing(records) {
   `;
 }
 
+function segmentSummaryFromRows(rows) {
+  const lifecycleRows = lifecycleSalesBreakdown(rows);
+  const total = lifecycleRows.reduce((acc, row) => acc + row.venta, 0);
+  const current = Object.fromEntries(lifecycleRows.map(row => [row.key, row]));
+  const nuevo = current.nuevo || { venta: 0, tx: 0, clientes: new Set(), label: 'Nuevos' };
+  const repeatRows = lifecycleRows.filter(row => row.key !== 'nuevo');
+  return {
+    total,
+    lifecycleRows,
+    newRepeat: [
+      { key: 'nuevo', label: 'Nuevos', venta: nuevo.venta, tx: nuevo.tx, clientes: nuevo.clientes },
+      {
+        key: 'recompra',
+        label: 'Recompras',
+        venta: repeatRows.reduce((acc, row) => acc + row.venta, 0),
+        tx: repeatRows.reduce((acc, row) => acc + row.tx, 0),
+        clientes: new Set(repeatRows.flatMap(row => [...row.clientes]))
+      }
+    ]
+  };
+}
+
+function renderMayBenchmark(records) {
+  const el = document.querySelector('#mayBenchmark');
+  if (!el) return;
+  const scoped = comparableScopeRecords();
+  const dates = uniqueSorted(records, 'fecha');
+  if (!dates.length) {
+    el.innerHTML = '<div class="empty">Sin datos para comparar contra mayo</div>';
+    return;
+  }
+  const activeMonth = state.mes !== 'all' ? state.mes : dates.at(-1).slice(0, 7);
+  const activeRowsAll = scoped.filter(row => row.mes === activeMonth);
+  const activeDates = uniqueSorted(activeRowsAll, 'fecha');
+  if (!activeDates.length) {
+    el.innerHTML = '<div class="empty">Sin datos del mes activo</div>';
+    return;
+  }
+  const cutoffDay = Math.max(1, Number(activeDates.at(-1).slice(8, 10)));
+  const currentRows = activeRowsAll.filter(row => Number(row.fecha.slice(8, 10)) <= cutoffDay);
+  const mayRowsSameCut = scoped.filter(row => row.mes === '2026-05' && Number(row.fecha.slice(8, 10)) <= cutoffDay);
+  const mayRowsFull = scoped.filter(row => row.mes === '2026-05');
+  if (!mayRowsSameCut.length) {
+    el.innerHTML = '<div class="empty">No hay mayo 2026 comparable para este filtro</div>';
+    return;
+  }
+  const current = segmentSummaryFromRows(currentRows);
+  const may = segmentSummaryFromRows(mayRowsSameCut);
+  const mayFull = segmentSummaryFromRows(mayRowsFull);
+  const totalGap = current.total - may.total;
+  const currentTx = txCount(currentRows);
+  const mayTx = txCount(mayRowsSameCut);
+  const currentClients = clientCount(currentRows);
+  const mayClients = clientCount(mayRowsSameCut);
+  const currentDaily = current.total / cutoffDay;
+  const mayDaily = may.total / cutoffDay;
+  const lifecycleByKey = new Map(may.lifecycleRows.map(row => [row.key, row]));
+  const lifecycleOrder = ['nuevo', 'continuidad', 'reactivacion', 'resurreccion'];
+  const bottlenecks = current.lifecycleRows
+    .map(row => ({ ...row, may: lifecycleByKey.get(row.key) || { venta: 0, tx: 0, clientes: new Set() }, gap: row.venta - (lifecycleByKey.get(row.key)?.venta || 0) }))
+    .sort((a, b) => a.gap - b.gap);
+  const biggestGap = bottlenecks[0];
+
+  const rowCard = (row, mayRow) => {
+    const gap = row.venta - mayRow.venta;
+    const cls = gap >= 0 ? 'up' : 'down';
+    return `<article class="may-segment-card ${cls}">
+      <span>${escapeHtml(row.label)}</span>
+      <strong>${money2.format(row.venta)}</strong>
+      <em>${gap >= 0 ? '+' : '-'}${money2.format(Math.abs(gap))} vs mayo</em>
+      <small>${number.format(row.tx)} tx · ${number.format(row.clientes.size)} clientes · mayo ${money2.format(mayRow.venta)}</small>
+    </article>`;
+  };
+
+  el.innerHTML = `
+    <div class="may-benchmark-head">
+      <article>
+        <span>${escapeHtml(optionLabel('mes', activeMonth))} al día ${number.format(cutoffDay)}</span>
+        <strong>${money2.format(current.total)}</strong>
+        <small>${number.format(currentTx)} tx · ${number.format(currentClients)} clientes · ${money2.format(currentDaily)}/día</small>
+      </article>
+      <article>
+        <span>Mayo 2026 al día ${number.format(cutoffDay)}</span>
+        <strong>${money2.format(may.total)}</strong>
+        <small>${number.format(mayTx)} tx · ${number.format(mayClients)} clientes · ${money2.format(mayDaily)}/día</small>
+      </article>
+      <article class="${totalGap >= 0 ? 'up' : 'down'}">
+        <span>Diferencia vs mayo</span>
+        <strong>${totalGap >= 0 ? '+' : '-'}${money2.format(Math.abs(totalGap))}</strong>
+        <small>${number.format(currentTx - mayTx)} tx · ${number.format(currentClients - mayClients)} clientes · ${money2.format(currentDaily - mayDaily)}/día</small>
+      </article>
+      <article>
+        <span>Mayo completo</span>
+        <strong>${money2.format(mayFull.total)}</strong>
+        <small>Referencia del mes que casi llegó a S/ 300k.</small>
+      </article>
+    </div>
+    <div class="may-benchmark-note">
+      <strong>Cuello principal:</strong> ${biggestGap ? `${escapeHtml(biggestGap.label)} está ${money2.format(Math.abs(biggestGap.gap))} por debajo de mayo al mismo corte.` : 'sin brecha clara.'}
+    </div>
+    <div class="may-benchmark-grid">
+      ${current.newRepeat.map(row => {
+        const mayRow = may.newRepeat.find(item => item.key === row.key) || { venta: 0, tx: 0, clientes: new Set() };
+        return rowCard(row, mayRow);
+      }).join('')}
+    </div>
+    <div class="may-benchmark-grid lifecycle">
+      ${lifecycleOrder.map(key => {
+        const row = current.lifecycleRows.find(item => item.key === key) || { key, label: key, venta: 0, tx: 0, clientes: new Set() };
+        const mayRow = lifecycleByKey.get(key) || { venta: 0, tx: 0, clientes: new Set() };
+        return rowCard(row, mayRow);
+      }).join('')}
+    </div>
+  `;
+}
+
 function renderBars(target, items, opts = {}) {
   const el = document.querySelector(target);
   if (!el) return;
@@ -2149,6 +2265,7 @@ function renderDashboard() {
   const summary = renderKpis(records);
   renderIncrementalImpact();
   renderTargetPacing(records);
+  renderMayBenchmark(records);
   renderJuneYoy();
   renderLifecycleTop(records);
   renderExecutiveSummaryCards(records);

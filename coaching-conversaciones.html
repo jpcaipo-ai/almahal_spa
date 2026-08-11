@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Almahal | Coaching de venta consultiva</title>
+  <style>
+    :root {
+      --ink: #171412;
+      --muted: #6e6258;
+      --line: #eadfce;
+      --gold: #c99a49;
+      --gold-soft: #fbf2df;
+      --green: #075744;
+      --green-soft: #eaf5ef;
+      --rose: #b7675f;
+      --rose-soft: #fbebe7;
+      --cream: #fffaf2;
+      --paper: #ffffff;
+      --shadow: 0 22px 70px rgba(55, 39, 18, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(201, 154, 73, .22), transparent 34rem),
+        linear-gradient(180deg, #fffdf8 0%, #f7f0e5 100%);
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 46px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 0 26px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--green);
+      box-shadow: 0 10px 24px rgba(7, 87, 68, .22);
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      gap: 24px;
+      align-items: stretch;
+      padding: 30px 0 22px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: .95;
+      letter-spacing: -.03em;
+      font-weight: 500;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+      letter-spacing: -.02em;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .lead {
+      max-width: 720px;
+      font-size: 18px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .78);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .principle {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .principle-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .mini {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--cream);
+    }
+
+    .mini strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--green);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease, color .18s ease, border .18s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    button.active {
+      color: #fff;
+      border-color: var(--green);
+      background: var(--green);
+    }
+
+    .section {
+      margin-top: 18px;
+      padding: 24px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .step {
+      position: relative;
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--gold-soft);
+      border: 1px solid #efdcb6;
+      min-height: 150px;
+    }
+
+    .step span {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .step p { font-size: 14px; }
+
+    .coach-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .conversation {
+      display: grid;
+      gap: 12px;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+    }
+
+    .bubble {
+      max-width: 84%;
+      padding: 13px 15px;
+      border-radius: 18px;
+      line-height: 1.45;
+      font-size: 15px;
+    }
+
+    .client {
+      justify-self: start;
+      background: #f2eee8;
+      border-bottom-left-radius: 6px;
+    }
+
+    .advisor {
+      justify-self: end;
+      color: #fff;
+      background: var(--green);
+      border-bottom-right-radius: 6px;
+    }
+
+    .advisor strong,
+    .client strong { font-weight: 800; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--green);
+      background: var(--green-soft);
+      border: 1px solid #cce6da;
+    }
+
+    .notes {
+      display: grid;
+      gap: 12px;
+    }
+
+    .note {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--cream);
+    }
+
+    .note.price {
+      background: var(--rose-soft);
+      border-color: #efc9c2;
+    }
+
+    .note.good {
+      background: var(--green-soft);
+      border-color: #cce6da;
+    }
+
+    .note ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .score {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .score b {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 4px;
+      color: var(--green);
+    }
+
+    .elements-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .element {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .element b {
+      display: block;
+      color: var(--green);
+      margin-bottom: 5px;
+    }
+
+    .element p {
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .script-bank {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .script {
+      padding: 16px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      display: grid;
+      gap: 10px;
+    }
+
+    .script p {
+      color: var(--ink);
+    }
+
+    .script small {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .script h3 {
+      margin: 0;
+      color: var(--green);
+    }
+
+    .question-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .question {
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: var(--cream);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    .moment {
+      display: inline-flex;
+      width: fit-content;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .deep-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .deep-card {
+      padding: 18px;
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .deep-card h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: var(--green);
+    }
+
+    .deep-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+
+    .bridge {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 20px;
+      background: var(--green);
+      color: #fff;
+    }
+
+    .bridge p {
+      color: rgba(255, 255, 255, .88);
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .coach-grid,
+      .flow,
+      .matrix,
+      .elements-grid,
+      .script-bank,
+      .deep-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .principle-grid {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .meta { text-align: left; }
+      .bubble { max-width: 94%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div>Almahal x Llama Leads</div>
+      </div>
+      <div class="meta">Coaching comercial | Venta consultiva para asesoras</div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>De informar opciones a vender experiencias.</h1>
+        <p class="lead">La asesora no debe sonar como recepción. Debe descubrir <strong>motivación</strong>, <strong>dolor</strong>, <strong>recurrencia</strong>, <strong>urgencia</strong> y <strong>objeciones</strong>; nutrir cada respuesta y recién recomendar el ritual ideal. ✨</p>
+      </div>
+      <aside class="card principle">
+        <h2>Regla central</h2>
+        <p><strong>Pregunta + nutrición + siguiente pregunta.</strong> Si solo preguntamos, parece formulario. Si solo mandamos opciones, parece catálogo. Si exploramos y nutrimos, vendemos como expertas.</p>
+        <div class="principle-grid">
+          <div class="mini">
+            <strong>Lead pepita 💎</strong>
+            Responde motivaciones, se abre, cuenta contexto, menciona fecha o emoción.
+          </div>
+          <div class="mini">
+            <strong>Lead precio ⚠️</strong>
+            Solo pregunta “cuánto”, compara y no da contexto. Se atiende, pero con menor energía.
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card section">
+      <h2>Mapa de conversación</h2>
+      <p>Este es el orden antes de mostrar opciones. La asesora guía, no lanza el menú completo.</p>
+      <div class="flow">
+        <div class="step">
+          <span>1</span>
+          <h3>Filtro</h3>
+          <p><strong>Solo, pareja o grupal.</strong> Si es grupal, luego se profundiza cantidad y ocasión.</p>
+        </div>
+        <div class="step">
+          <span>2</span>
+          <h3>Motivación</h3>
+          <p>¿Busca <strong>relajarse</strong>, celebrar, regalar, desconectarse o engreírse?</p>
+        </div>
+        <div class="step">
+          <span>3</span>
+          <h3>Exploración</h3>
+          <p>Dolor, placer, recurrencia, fecha tentativa y nivel de conciencia.</p>
+        </div>
+        <div class="step">
+          <span>4</span>
+          <h3>Nutrición</h3>
+          <p>Validar lo que dijo y elevar valor: “para ese caso conviene...”</p>
+        </div>
+        <div class="step">
+          <span>5</span>
+          <h3>Recomendación</h3>
+          <p>La asesora sugiere el ritual ideal, anticipa dudas y pide agenda.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Elementos que necesitamos capturar</h2>
+      <p>Si la asesora consigue estos datos, puede recomendar mejor, priorizar leads pepita y cerrar con más seguridad.</p>
+      <div class="elements-grid">
+        <div class="element">
+          <b>1. Modalidad</b>
+          <p>Solo, pareja o grupal. Define el tipo de experiencia.</p>
+        </div>
+        <div class="element">
+          <b>2. Motivación</b>
+          <p>Relajarse, celebrar, regalar, reconectar, sanar o engreírse.</p>
+        </div>
+        <div class="element">
+          <b>3. Dolor</b>
+          <p>Estrés, tensión física, cansancio mental o rutina pesada.</p>
+        </div>
+        <div class="element">
+          <b>4. Recurrencia</b>
+          <p>Primera vez, ocasional o cliente que ya consume spa.</p>
+        </div>
+        <div class="element">
+          <b>5. Fecha</b>
+          <p>Urgencia real: hoy, fin de semana, cumpleaños o más adelante.</p>
+        </div>
+        <div class="element">
+          <b>6. Objeción</b>
+          <p>Precio, duración, privacidad, sede, disponibilidad o pago.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Simulador de conversaciones</h2>
+      <p>Elige el caso para ver cómo debería sonar una conversación más consultiva.</p>
+      <div class="pill-row">
+        <button class="case-btn active" data-case="stress">Relax por trabajo 😮‍💨</button>
+        <button class="case-btn" data-case="birthday">Cumpleaños 🎂</button>
+        <button class="case-btn" data-case="gift">Regalo especial 🎁</button>
+        <button class="case-btn" data-case="price">Post catálogo + precio ⚠️</button>
+        <button class="case-btn" data-case="review">“Lo reviso” 🕯️</button>
+        <button class="case-btn" data-case="pain">3 dolores 🧠</button>
+        <button class="case-btn" data-case="motivation">3 motivaciones ✨</button>
+      </div>
+
+      <div class="coach-grid">
+        <div class="conversation" id="conversation"></div>
+        <aside class="notes" id="notes"></aside>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Ranking de calidad del lead</h2>
+      <p>La energía comercial debe ir primero a las pepitas: personas que se abren, responden motivación y dan contexto.</p>
+      <div class="matrix">
+        <div class="score">
+          <b>💎 Alta prioridad</b>
+          <p>Cuenta motivo, fecha, ocasión, dolor o deseo. Aquí la asesora debe profundizar y cerrar.</p>
+        </div>
+        <div class="score">
+          <b>🔥 Tibio bueno</b>
+          <p>Pregunta por opciones pero responde cuando se explora. Requiere nutrición y recomendación.</p>
+        </div>
+        <div class="score">
+          <b>🟡 Precio primero</b>
+          <p>Pregunta monto sin contexto. Se responde con valor y una pregunta filtro, no con lista fría.</p>
+        </div>
+        <div class="score">
+          <b>🧊 Baja energía</b>
+          <p>No responde, compara demasiado o evita contexto. Recontacto corto y pasar a leads mejores.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Conversar para descubrir y nutrir</h2>
+      <p>La asesora debe usar la conversación para conseguir señales. Cada señal permite nutrir mejor y demostrar por qué Almahal es la mejor opción antes de pedir reserva.</p>
+
+      <div class="deep-grid">
+        <div class="deep-card">
+          <h3>💬 Señales que quiero sacar</h3>
+          <ul>
+            <li><strong>Motivación:</strong> relajarse, celebrar, regalar, reconectar, engreírse.</li>
+            <li><strong>Dolor:</strong> estrés laboral, tensión física, cansancio mental, rutina pesada.</li>
+            <li><strong>Recurrencia:</strong> primera vez, compra ocasional o persona que ya consume spa.</li>
+            <li><strong>Urgencia:</strong> fecha tentativa, fin de semana, cumpleaños, aniversario.</li>
+            <li><strong>Conciencia:</strong> si compara precio o si valora experiencia, ambiente y resultado.</li>
+            <li><strong>Objeción:</strong> privacidad, duración, qué incluye, sede, pago, disponibilidad.</li>
+          </ul>
+        </div>
+
+        <div class="deep-card">
+          <h3>✨ Cómo nutrir sin sonar intensa</h3>
+          <ul>
+            <li><strong>Validar:</strong> “Tiene todo el sentido que busquen eso.”</li>
+            <li><strong>Educar:</strong> “Para estrés laboral ayuda combinar agua, calor y masaje.”</li>
+            <li><strong>Probar:</strong> “Muchas parejas/cumpleaños vienen por esta experiencia.”</li>
+            <li><strong>Mostrar:</strong> “Te puedo mandar un video para que veas el ambiente.”</li>
+            <li><strong>Recomendar:</strong> “Por lo que me cuentas, yo elegiría este ritual.”</li>
+            <li><strong>Cerrar:</strong> “¿Tienes alguna duda antes de pasar a reserva/pago?”</li>
+          </ul>
+        </div>
+
+        <div class="deep-card">
+          <h3>🎥 Cuándo usar videos o fotos</h3>
+          <ul>
+            <li>Si menciona <strong>celebración</strong>: mandar video/foto de pizarra, detalle o ambiente.</li>
+            <li>Si menciona <strong>relajación</strong>: mandar video del espacio, jacuzzi, sauna o sala.</li>
+            <li>Si pregunta <strong>qué incluye</strong>: mandar visual del ritual recomendado, no todo el catálogo otra vez.</li>
+            <li>Si duda por <strong>precio</strong>: mostrar lo que hace premium la experiencia.</li>
+            <li>Si ya quiere fecha: mandar disponibilidad, no más contenido innecesario.</li>
+          </ul>
+        </div>
+
+        <div class="deep-card">
+          <h3>🏆 Track record que construye confianza</h3>
+          <ul>
+            <li>“Más de <strong>5,000 personas</strong> han vivido la experiencia Almahal.”</li>
+            <li>“Tenemos más de <strong>7 años ayudando a sanar, relajar y reconectar</strong> a través de experiencias de bienestar.”</li>
+            <li>“Muchas personas vienen a celebrar cumpleaños y aniversarios en Almahal.”</li>
+            <li>“Este ritual suele gustar porque se siente completo, no solo como un masaje.”</li>
+            <li>“Para primeras experiencias, esta opción funciona muy bien porque es fluida y fácil de disfrutar.”</li>
+            <li>“Cuando vienen por estrés, recomendamos experiencias que combinen agua, calor y masaje.”</li>
+            <li>“Podemos ayudarte a elegir para que no tengas que decidir a ciegas.”</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bridge">
+        <h3>Puente ideal</h3>
+        <p><strong>“Por lo que me cuentas...”</strong> debe aparecer antes de recomendar. Esa frase demuestra que la asesora escuchó, entendió y no está vendiendo por vender.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Banco de preguntas por categoría</h2>
+      <div class="script-bank">
+        <div class="script">
+          <h3>Motivación</h3>
+          <span class="moment">Para abrir intención</span>
+          <small>Úsala cuando aún no sabes por qué quiere vivir la experiencia.</small>
+          <div class="question-list">
+            <div class="question">“¿Lo buscan más para <strong>relajarse</strong> o para <strong>celebrar algo especial</strong>? ✨”</div>
+            <div class="question">“¿Qué les gustaría sentir al salir del ritual: descanso, conexión, sorpresa o renovación?”</div>
+            <div class="question">“¿Es más un momento para desconectar, engreírse o compartir algo bonito?”</div>
+          </div>
+        </div>
+        <div class="script">
+          <h3>Dolor</h3>
+          <span class="moment">Para profundizar</span>
+          <small>Úsala cuando menciona estrés, cansancio o necesidad de relajarse.</small>
+          <div class="question-list">
+            <div class="question">“Cuando dices estrés, ¿lo sienten más en el cuerpo, en la mente o en la rutina del día a día?”</div>
+            <div class="question">“¿Suelen terminar con tensión en espalda/cuello o es más cansancio mental?”</div>
+            <div class="question">“¿Qué te gustaría soltar ese día: tensión, ruido mental o simplemente la rutina?”</div>
+          </div>
+        </div>
+        <div class="script">
+          <h3>Recurrencia</h3>
+          <span class="moment">Para calibrar experiencia</span>
+          <small>Ayuda a saber si necesita algo amigable, premium o más profundo.</small>
+          <div class="question-list">
+            <div class="question">“¿Ya han vivido una experiencia de spa antes o sería su primera vez? Así te recomiendo mejor.”</div>
+            <div class="question">“¿Esto sería algo puntual o les gustaría empezar a darse este espacio más seguido?”</div>
+            <div class="question">“¿Suelen hacerse masajes/tratamientos o sería una experiencia nueva para ustedes?”</div>
+          </div>
+        </div>
+        <div class="script">
+          <h3>Fecha</h3>
+          <span class="moment">Para medir urgencia</span>
+          <small>Si da fecha, responde con hilo y cupos. No cambies de tema.</small>
+          <div class="question-list">
+            <div class="question">“¿Tienen una fecha tentativa o les gustaría vivirlo esta semana?”</div>
+            <div class="question">“Genial, para este fin de semana aún tenemos algunos cupos. ¿Lo imaginan más sábado o domingo?”</div>
+            <div class="question">“Si es para una fecha especial, te recomiendo separarlo con anticipación para cuidar el horario.”</div>
+          </div>
+        </div>
+        <div class="script">
+          <h3>Objeción antes de reserva</h3>
+          <span class="moment">Antes de pedir agenda</span>
+          <small>Sirve para descubrir dudas escondidas sin presionar.</small>
+          <div class="question-list">
+            <div class="question">“Antes de agendar, ¿hay algo que te gustaría saber sí o sí para sentirte segura?”</div>
+            <div class="question">“¿Te gustaría saber algo más antes de pasar a la reserva y vivir la experiencia?”</div>
+            <div class="question">“¿Qué te gustaría saber antes de tomar un ritual en Almahal?”</div>
+          </div>
+        </div>
+        <div class="script">
+          <h3>Objeción antes de pago</h3>
+          <span class="moment">Cuando ya eligió</span>
+          <small>Confirma seguridad antes de pasar método de pago.</small>
+          <div class="question-list">
+            <div class="question">“¿Tienes alguna duda más antes de pasar a los métodos de pago?”</div>
+            <div class="question">“¿Hay algo que quieras confirmar antes de separar tu horario?”</div>
+            <div class="question">“Si está todo claro, te paso los métodos de pago y dejamos tu reserva lista.”</div>
+          </div>
+        </div>
+        <div class="script">
+          <h3>Cierre experto</h3>
+          <span class="moment">Después de explorar</span>
+          <small>La recomendación debe sonar personalizada, no genérica.</small>
+          <div class="question-list">
+            <div class="question">“Por lo que me cuentas, yo te recomendaría este ritual porque calza mejor con lo que quieren sentir al salir.”</div>
+            <div class="question">“Te recomiendo esta opción porque evita que tengan que elegir a ciegas y les da la experiencia más completa para su objetivo.”</div>
+            <div class="question">“No me iría por la opción más básica en este caso, porque lo que buscas es que se sienta especial.”</div>
+          </div>
+        </div>
+        <div class="script">
+          <h3>Lead precio post catálogo</h3>
+          <span class="moment">Después de enviar planes</span>
+          <small>No repetir catálogo. Leer si quiere valor o solo precio.</small>
+          <div class="question-list">
+            <div class="question">“Ya que viste los planes, ¿te gustaría que te ayude a elegir el que mejor calza con lo que buscan vivir?”</div>
+            <div class="question">“Si solo estás comparando precios, te paso la opción más directa; si quieres la mejor experiencia, te recomiendo esta.”</div>
+            <div class="question">“¿Lo estás viendo más por presupuesto o quieres asegurar una experiencia realmente especial?”</div>
+          </div>
+        </div>
+        <div class="script">
+          <h3>Cuando dice “lo reviso”</h3>
+          <span class="moment">Conversación apagada</span>
+          <small>Dar espacio, pero dejar una pregunta suave para capturar información.</small>
+          <div class="question-list">
+            <div class="question">“Claro que sí, tómate el tiempo que necesites 😊 Solo por curiosidad, ¿sería su primera vez en un spa?”</div>
+            <div class="question">“Perfecto, revísalo con calma ✨ Para guiarte mejor, ¿lo están buscando para ahora o para unas semanas?”</div>
+            <div class="question">“Sí, claro. Solo para recomendarte mejor cuando lo revises: ¿lo buscan más para relajarse, celebrar o regalar?”</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const cases = {
+      stress: {
+        notes: [
+          ['good', 'Qué se detecta', ['Motivación: relajarse.', 'Dolor: estrés por trabajo.', 'Oportunidad: preguntar si es tensión física, agotamiento mental o rutina pesada.']],
+          ['note', 'Cómo nutrir', ['Validar: “tiene todo el sentido”.', 'Elevar valor: calor + agua + masaje = reset.', 'Recién después recomendar ritual.']],
+          ['price', 'Error común', ['Mandar tres opciones de golpe.', 'Pedir que el cliente decida cuando vino justamente a desconectarse.']]
+        ],
+        chat: [
+          ['client', 'Hola, queremos algo para relajarnos y desestresarnos del trabajo 😮‍💨'],
+          ['advisor', 'Totalmente, <strong>cuando vienen por estrés de trabajo</strong> lo ideal no es solo elegir “un masaje”, sino una experiencia que les ayude a bajar revoluciones de verdad ✨'],
+          ['advisor', 'Para recomendarte bien: ¿sienten más <strong>tensión física</strong> en espalda/cuello, <strong>cansancio mental</strong> o solo quieren desconectarse de la rutina?'],
+          ['client', 'Más que todo cansancio mental, estamos full con trabajo.'],
+          ['advisor', 'Tiene mucho sentido. Para ese tipo de cansancio funciona muy bien una experiencia con agua, calor y masaje, porque el cuerpo entra en pausa y la mente también 🌿'],
+          ['advisor', 'De hecho, muchas personas que vienen por trabajo no buscan solo “relajarse un rato”, sino salir sintiendo que hicieron un reset completo. Si quieres, también te puedo mandar un video corto del ambiente para que lo visualices mejor.'],
+          ['advisor', '¿Ya han vivido un ritual de spa antes o sería su primera experiencia?'],
+          ['client', 'Sería la primera vez.'],
+          ['advisor', 'Perfecto, entonces evitaría algo demasiado básico. Les recomendaría un ritual completo pero fácil de disfrutar, para que no tengan que pensar en nada.'],
+          ['advisor', 'Como sería su primera experiencia, antes de reservar me gustaría cuidar que el ritual calce perfecto. ¿Hay algo que te gustaría saber sí o sí antes de vivir la experiencia?'],
+          ['client', 'Solo horarios y si atienden domingo.'],
+          ['advisor', 'Sí, atendemos domingo 😊 Y por lo que me cuentas, yo iría por el <strong>Ritual Luxury</strong>: jacuzzi, sauna, masaje y facial. Es ideal para salir con sensación de reset, no solo con “un masaje”.'],
+          ['advisor', 'Antes de pasar a horarios, ¿tienes alguna duda más sobre duración, ambiente o qué incluye? Si está todo claro, revisamos cupos y te paso métodos de pago para separar.']
+        ]
+      },
+      birthday: {
+        notes: [
+          ['good', 'Qué se detecta', ['Motivación: celebración.', 'Emoción: sorpresa / engreimiento.', 'Oportunidad: hacer que se imagine la experiencia.']],
+          ['note', 'Cómo nutrir', ['Celebrar con energía.', 'Mencionar que muchas personas vienen por cumpleaños.', 'Inclinar hacia una experiencia más memorable.']],
+          ['price', 'Error común', ['Decir solo “tenemos muffin y pizarra”.', 'No preguntar cómo quieren que se sienta la persona.']]
+        ],
+        chat: [
+          ['client', 'Es para celebrar 3 cumpleaños 🎂'],
+          ['advisor', '¡Qué lindo! 😍 Para cumpleaños muchas personas vienen porque quieren que no sea solo un servicio, sino una experiencia que se sienta especial desde que llegan.'],
+          ['advisor', 'Para recomendarte mejor: ¿quieren algo más <strong>relajante</strong>, algo más <strong>celebratorio</strong> o una experiencia bien completa para engreírse?'],
+          ['client', 'Algo celebratorio pero relajante.'],
+          ['advisor', 'Perfecto. Entonces yo no me iría por una opción muy básica, porque al ser cumpleaños conviene que se sienta como plan especial ✨'],
+          ['advisor', 'En Almahal suelen venir bastante por cumpleaños porque podemos sumar detalles como pizarra y cortesía, pero lo más importante es que el ritual se sienta memorable, no solo “cumplir con el regalo”.'],
+          ['advisor', '¿Las personas ya suelen ir a spa o sería algo nuevo para ellas?'],
+          ['client', 'Una de ellas sí, las otras no tanto.'],
+          ['advisor', 'Buenísimo. En ese caso conviene una experiencia completa pero amigable, donde todas disfruten sin sentirse abrumadas. Además podemos incluir detalle de pizarra y cortesía para personalizarlo 💛'],
+          ['advisor', '¿Tienen fecha tentativa para prepararles disponibilidad?'],
+          ['client', 'Este sábado.'],
+          ['advisor', 'Genial, para este sábado aún podemos revisar algunos cupos 🎂 Antes de agendar, ¿te gustaría saber algo puntual sobre duración, decoración o qué incluye?'],
+          ['client', 'Quiero saber qué opción recomiendas.'],
+          ['advisor', 'Para tres cumpleaños recomendaría un <strong>ritual grupal completo</strong>, porque se siente más celebración que solo masaje. Además podemos preparar el detalle para que se sienta más personalizado ✨'],
+          ['advisor', '¿Tienes alguna duda más antes de pasar a la reserva? Si no, te reviso los horarios de sábado y avanzamos con el método de pago para separarlo.']
+        ]
+      },
+      gift: {
+        notes: [
+          ['good', 'Qué se detecta', ['Motivación: regalo.', 'Decisión depende de la persona que recibe.', 'Oportunidad: preguntar personalidad y efecto deseado.']],
+          ['note', 'Cómo nutrir', ['No vender “paquete”.', 'Vender intención: sorpresa, cuidado, romance, gratitud.', 'Recomendar según la persona.']],
+          ['price', 'Error común', ['Mostrar todo el catálogo.', 'No preguntar para quién es ni qué quiere provocar el regalo.']]
+        ],
+        chat: [
+          ['client', 'Quiero regalarle algo a mi pareja 🎁'],
+          ['advisor', 'Qué bonito detalle 💛 Para regalo, la clave es elegir algo que se sienta pensado para esa persona, no solo mandar una opción cualquiera.'],
+          ['advisor', '¿Quieres que sea más <strong>romántico</strong>, más <strong>relajante</strong> o más tipo sorpresa premium?'],
+          ['client', 'Romántico y relajante.'],
+          ['advisor', 'Entonces buscaría algo que tenga ambiente, pausa y sensación de experiencia compartida. Para pareja suele funcionar mejor cuando no es solo masaje, sino un ritual completo ✨'],
+          ['advisor', 'Te puedo apoyar con un video del espacio para que veas si calza con lo que quieres regalar; ayuda bastante cuando quieres que se sienta premium desde antes de llegar.'],
+          ['advisor', '¿Ya han ido juntos a un spa o sería la primera vez?'],
+          ['client', 'Primera vez juntos.'],
+          ['advisor', 'Lindo. Entonces conviene que la experiencia sea fluida y especial, para que no tengan que decidir mucho y solo disfrutar.'],
+          ['advisor', '¿Tienes una fecha en mente o sería para dejarlo como regalo abierto?'],
+          ['client', 'Quiero este fin de semana.'],
+          ['advisor', 'Genial 😊 Para este fin de semana aún tenemos algunos cupos. Como es regalo para tu pareja, cuidaría que la experiencia se sienta íntima, fluida y especial.'],
+          ['advisor', 'Antes de reservar, ¿te gustaría saber algo sí o sí sobre privacidad, duración o qué incluye?'],
+          ['client', 'Privacidad y duración.'],
+          ['advisor', 'Perfecto. Tiene privacidad durante la experiencia y la duración depende del ritual elegido. Para lo que buscas, te recomiendo una opción de pareja con ritual completo; tiene mejor sensación de regalo premium 💛'],
+          ['advisor', '¿Tienes alguna duda más antes de pasar a los métodos de pago? Si está todo claro, te paso los horarios disponibles para separar el cupo.']
+        ]
+      },
+      price: {
+        notes: [
+          ['price', 'Cómo leer este lead', ['Esto ocurre después de enviar los planes/catálogo.', 'Si solo habla de precio y no responde contexto, no es prioridad máxima.', 'Se atiende con respeto, pero se invierte más energía en quien muestra intención real.']],
+          ['note', 'Respuesta recomendada', ['No repetir todo el catálogo.', 'Ayudarle a elegir según objetivo.', 'Si insiste solo en precio, darle la opción directa y no sobreperseguir.']],
+          ['good', 'Pepita escondida', ['Si después responde motivo, ocasión o fecha, sube de prioridad.', 'Si se abre, vuelve al flujo consultivo normal.']]
+        ],
+        chat: [
+          ['advisor', 'Te comparto nuestros planes para pareja ✨ Hay opciones más puntuales y otras más completas tipo ritual, según lo que quieran vivir.'],
+          ['client', 'Cuál es el precio final?'],
+          ['advisor', 'Claro 😊 Ya con los planes a la vista, te ayudo a elegir mejor: ¿lo están viendo más por presupuesto o quieren asegurar una experiencia que se sienta realmente especial?'],
+          ['client', 'Estoy comparando precios.'],
+          ['advisor', 'Te entiendo. Si estás comparando, la opción más directa es la base. Si buscas que se sienta como experiencia premium, yo no me iría por la más simple, porque puede quedarse corta.'],
+          ['advisor', 'La diferencia no está solo en el precio, sino en qué tan completa se siente la experiencia: ambiente, duración, ritual, privacidad y sensación final. Por eso te ayudo a elegir según lo que realmente buscan.'],
+          ['advisor', '¿Quieres que te indique la opción más accesible o la que mejor calza para una experiencia de pareja?'],
+          ['client', 'La más accesible.'],
+          ['advisor', 'Perfecto, te paso la opción más accesible. Antes de avanzar, ¿tienes alguna duda sobre lo que incluye o solo deseas confirmar disponibilidad?'],
+          ['client', 'Solo disponibilidad.'],
+          ['advisor', 'Listo. Te reviso cupos. Si luego buscan algo más especial, mi recomendación sería subir al ritual completo porque cambia bastante la experiencia.']
+        ]
+      },
+      review: {
+        notes: [
+          ['good', 'Qué se detecta', ['Ya recibió planes/catálogo.', 'No rechazó, pero bajó la energía.', 'Aquí se debe sostener conversación con una pregunta suave.']],
+          ['note', 'Cómo responder', ['Dar permiso: “tómate tu tiempo”.', 'Hacer una pregunta de curiosidad.', 'Capturar motivación, recurrencia o fecha sin presionar.']],
+          ['price', 'Error común', ['Responder solo “quedo atenta”.', 'Perder la oportunidad de sacar información.', 'Recontactar después sin contexto ni ángulo.']]
+        ],
+        chat: [
+          ['advisor', 'Te comparto los planes y el catálogo para que puedas revisarlos con calma ✨'],
+          ['client', 'Ok gracias, voy a revisarlo.'],
+          ['advisor', 'Claro que sí, tómate el tiempo que necesites 😊 Solo por curiosidad, ¿sería su primera vez viviendo una experiencia de spa o ya suelen hacerlo?'],
+          ['client', 'Sería primera vez.'],
+          ['advisor', 'Lindo, entonces mi recomendación sería no elegir solo por precio, sino por una experiencia que se sienta fluida y fácil de disfrutar. En Almahal ya más de <strong>5,000 personas</strong> han vivido la experiencia, y solemos guiar bastante a quienes vienen por primera vez ✨'],
+          ['advisor', '¿Lo están pensando para estos días o todavía para más adelante?'],
+          ['client', 'Tal vez para este fin de semana.'],
+          ['advisor', 'Genial, para este fin de semana aún tenemos algunos cupos. Si quieres, te ayudo a elegir el ritual ideal según lo que buscan sentir al salir: relajación total, celebración o desconexión.'],
+          ['client', 'Más relajación total.'],
+          ['advisor', 'Perfecto. Para relajación total, yo te recomendaría una experiencia con agua, calor y masaje, porque ayuda a desconectar cuerpo y mente. Te puedo mandar un video corto del ambiente para que lo visualices mejor 🌿'],
+          ['advisor', '¿Te gustaría saber algo más antes de pasar a la reserva y vivir la experiencia?']
+        ]
+      },
+      pain: {
+        notes: [
+          ['good', 'Qué se detecta', ['Dolor 1: tensión física.', 'Dolor 2: cansancio mental.', 'Dolor 3: rutina/agotamiento acumulado.']],
+          ['note', 'Cómo nutrir', ['No preguntar los tres dolores como encuesta.', 'Hacer una pregunta, validar y luego profundizar.', 'Convertir el dolor en razón para recomendar.']],
+          ['price', 'Error común', ['Escuchar “estrés” y mandar opciones.', 'No descubrir qué tipo de estrés tiene.', 'No conectar el ritual con el resultado esperado.']]
+        ],
+        chat: [
+          ['client', 'Estoy buscando algo para relajarme. Últimamente he estado con mucho estrés por el trabajo, paso varias horas sentada y siento el cuello y la espalda súper cargados.'],
+          ['advisor', 'Te entiendo muchísimo 😮‍💨 Y cuando alguien llega con estrés, no siempre necesita lo mismo. Para recomendarte bien: ¿lo sientes más como <strong>tensión física</strong>, <strong>cansancio mental</strong> o como una rutina que ya te tiene saturada?'],
+          ['client', 'Creo que es una mezcla. Físicamente siento tensión en cuello y espalda, pero también estoy mentalmente agotada. Siento que necesito un espacio donde no tenga que pensar en nada.'],
+          ['advisor', 'Tiene todo el sentido. Cuando hay tensión en cuello y espalda, el cuerpo suele estar cargando el estrés del día a día. Ahí ayuda mucho preparar el cuerpo con calor antes del masaje, no ir directo al tratamiento.'],
+          ['advisor', '¿Pasas mucho tiempo sentada o frente a pantalla? Te pregunto porque eso suele acumular bastante tensión en esa zona.'],
+          ['client', 'Sí, trabajo en oficina todo el día y casi no paro. Incluso cuando llego a casa sigo pensando en pendientes, por eso quería algo que me ayude a cortar un poco con la rutina.'],
+          ['advisor', 'Claro, entonces no solo buscaría relajación, sino liberar esa carga física y que salgas sintiendo el cuerpo más liviano 🌿'],
+          ['advisor', 'Y a nivel mental, ¿buscas desconectarte un rato o sientes que necesitas un reset completo?'],
+          ['client', 'Un reset completo. No quiero solo un masaje rápido; quiero salir sintiendo que descansé de verdad y que mi cuerpo bajó revoluciones.'],
+          ['advisor', 'Perfecto. Por lo que me cuentas, yo no te recomendaría algo básico. Te recomendaría un ritual con agua, sauna y masaje, porque trabaja cuerpo y mente. Almahal tiene más de <strong>7 años ayudando a sanar, relajar y reconectar</strong> con este tipo de experiencias.'],
+          ['advisor', 'Antes de reservar, ¿te gustaría saber algo más sobre duración, ambiente o qué incluye el ritual?']
+        ]
+      },
+      motivation: {
+        notes: [
+          ['good', 'Qué se detecta', ['Motivación 1: relajarse.', 'Motivación 2: celebrar.', 'Motivación 3: regalar/conectar.']],
+          ['note', 'Cómo nutrir', ['La motivación define el ángulo de venta.', 'Si celebra, subir emoción.', 'Si regala, vender intención; si relaja, vender resultado.']],
+          ['price', 'Error común', ['Tratar todas las motivaciones igual.', 'Mandar el mismo catálogo sin contexto.', 'No hacer que imagine cómo se va a sentir.']]
+        ],
+        chat: [
+          ['client', 'Hola, quiero ver opciones para dos personas. Es para mi pareja y para mí, pero todavía no sé bien qué elegir porque quiero que sea algo especial.'],
+          ['advisor', 'Claro 😊 Para dos personas tenemos experiencias muy lindas. Para guiarte mejor: ¿lo buscan más para <strong>relajarse</strong>, <strong>celebrar algo especial</strong> o como un regalo/sorpresa?'],
+          ['client', 'Es un poco para celebrar, pero también para relajarnos. Hemos estado con semanas pesadas y quiero que sea un plan bonito, no solo ir a un lugar por ir.'],
+          ['advisor', 'Qué bonito ✨ Entonces buscaría algo que tenga las dos cosas: que se sienta especial por la celebración, pero que también les permita desconectar de verdad.'],
+          ['advisor', '¿Qué están celebrando? Así puedo ayudarte a elegir algo que se sienta más personalizado.'],
+          ['client', 'Nuestro aniversario. No solemos hacer muchos planes así, entonces me gustaría que se sienta distinto, más íntimo y cuidado.'],
+          ['advisor', '¡Qué lindo! Para aniversarios muchas parejas vienen porque quieren salir de la rutina y vivir algo más íntimo. En ese caso no me iría por algo muy básico, porque la experiencia debe sentirse memorable 💛'],
+          ['advisor', '¿Ustedes suelen hacerse este tipo de planes o sería algo diferente para ambos?'],
+          ['client', 'Sería algo diferente para ambos. Hemos ido a masajes alguna vez, pero nunca a una experiencia completa tipo ritual, por eso quiero elegir bien.'],
+          ['advisor', 'Perfecto, entonces conviene una experiencia fácil de disfrutar, donde no tengan que decidir tanto. Te puedo mandar un video del ambiente para que veas si calza con lo que quieres lograr.'],
+          ['advisor', '¿Tienen fecha tentativa para el aniversario o están viendo opciones primero?'],
+          ['client', 'Queremos este sábado si hay espacio. Me gustaría sorprenderle, pero también quiero asegurarme de que la experiencia valga la pena por el precio.'],
+          ['advisor', 'Genial, para este sábado aún podemos revisar algunos cupos. Por lo que me cuentas, te recomendaría un ritual de pareja completo, porque combina celebración, desconexión y sensación premium.'],
+          ['advisor', '¿Hay algo que te gustaría saber sí o sí antes de pasar a la reserva?']
+        ]
+      }
+    };
+
+    const conversation = document.getElementById('conversation');
+    const notes = document.getElementById('notes');
+
+    function renderCase(key) {
+      const item = cases[key];
+      conversation.innerHTML = item.chat.map(([who, text]) => (
+        `<div class="bubble ${who}">${text}</div>`
+      )).join('');
+
+      notes.innerHTML = item.notes.map(([kind, title, points]) => (
+        `<div class="note ${kind}">
+          <span class="tag">${title}</span>
+          <ul>${points.map(point => `<li>${point}</li>`).join('')}</ul>
+        </div>`
+      )).join('');
+
+      document.querySelectorAll('.case-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.case === key);
+      });
+    }
+
+    document.querySelectorAll('.case-btn').forEach(btn => {
+      btn.addEventListener('click', () => renderCase(btn.dataset.case));
+    });
+
+    renderCase('stress');
+  </script>
+</body>
+</html>

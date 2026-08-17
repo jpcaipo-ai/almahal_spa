@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Almahal | Seguimiento efectivo</title>
+  <style>
+    :root {
+      --ink: #171412;
+      --muted: #6d6258;
+      --line: #eadfce;
+      --gold: #c99a49;
+      --gold-soft: #fbf2df;
+      --green: #075744;
+      --green-soft: #e8f4ee;
+      --rose: #b7675f;
+      --rose-soft: #fbebe7;
+      --cream: #fffaf2;
+      --paper: #ffffff;
+      --shadow: 0 22px 70px rgba(55, 39, 18, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(201, 154, 73, .2), transparent 34rem),
+        linear-gradient(180deg, #fffdf8 0%, #f7f0e5 100%);
+    }
+
+    .shell {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 0 26px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--green);
+      box-shadow: 0 10px 24px rgba(7, 87, 68, .22);
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: .95;
+      letter-spacing: -.03em;
+      font-weight: 500;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+      letter-spacing: -.02em;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    strong { font-weight: 800; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 24px;
+      align-items: stretch;
+      padding: 30px 0 22px;
+    }
+
+    .lead {
+      max-width: 760px;
+      font-size: 18px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .82);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .principle {
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .formula {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .formula div {
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--cream);
+      border: 1px solid var(--line);
+    }
+
+    .formula b {
+      display: block;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .section {
+      margin-top: 18px;
+      padding: 24px;
+    }
+
+    .pipeline-map {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(132px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .stage-button {
+      position: relative;
+      min-height: 134px;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 18px;
+      padding: 14px;
+      cursor: pointer;
+      transition: transform .18s ease, border .18s ease, background .18s ease, color .18s ease;
+    }
+
+    .stage-button:hover { transform: translateY(-1px); }
+
+    .stage-button.active {
+      color: #fff;
+      border-color: var(--green);
+      background: var(--green);
+    }
+
+    .stage-number {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 9px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .stage-button.active .stage-number {
+      background: rgba(255, 255, 255, .2);
+    }
+
+    .stage-button b {
+      display: block;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .stage-button small {
+      display: block;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .stage-button.active small {
+      color: rgba(255, 255, 255, .78);
+    }
+
+    .stage-detail {
+      display: grid;
+      grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+      gap: 18px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 20px;
+      border-radius: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      padding: 7px 10px;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      color: var(--green);
+      background: var(--green-soft);
+      border: 1px solid #cce6da;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .mini {
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--cream);
+    }
+
+    .mini b {
+      display: block;
+      color: var(--green);
+      margin-bottom: 5px;
+    }
+
+    .questions {
+      display: grid;
+      gap: 12px;
+    }
+
+    .question-card {
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--cream);
+    }
+
+    .question-card b {
+      display: block;
+      color: var(--green);
+      margin-bottom: 6px;
+    }
+
+    .question-card p {
+      color: var(--ink);
+    }
+
+    .script {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      border-radius: 18px;
+      color: #fff;
+      background: var(--green);
+    }
+
+    .script p {
+      color: rgba(255, 255, 255, .92);
+    }
+
+    .angles-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .angle {
+      padding: 16px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .angle b {
+      display: block;
+      color: var(--green);
+      margin-bottom: 6px;
+    }
+
+    .errors {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .error-box,
+    .good-box {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+    }
+
+    .error-box {
+      background: var(--rose-soft);
+      border-color: #efc9c2;
+    }
+
+    .good-box {
+      background: var(--green-soft);
+      border-color: #cce6da;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .cadence {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .cadence-item {
+      padding: 16px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .cadence-item b {
+      display: block;
+      color: var(--green);
+      margin-bottom: 6px;
+    }
+
+    .cadence-item p {
+      font-size: 14px;
+    }
+
+    .case-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .case-tab {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 11px 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .case-tab.active {
+      color: #fff;
+      border-color: var(--green);
+      background: var(--green);
+    }
+
+    .simulation-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .chat {
+      display: grid;
+      gap: 12px;
+      padding: 20px;
+      border-radius: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .day-divider {
+      justify-self: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--cream);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .msg {
+      display: grid;
+      gap: 4px;
+      max-width: 88%;
+    }
+
+    .msg.client { justify-self: start; }
+    .msg.advisor { justify-self: end; }
+
+    .time {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .msg.advisor .time { text-align: right; }
+
+    .bubble {
+      padding: 13px 15px;
+      border-radius: 18px;
+      line-height: 1.48;
+      font-size: 15px;
+    }
+
+    .msg.client .bubble {
+      color: var(--ink);
+      background: #f2eee8;
+      border-bottom-left-radius: 6px;
+    }
+
+    .msg.advisor .bubble {
+      color: #fff;
+      background: var(--green);
+      border-bottom-right-radius: 6px;
+    }
+
+    .case-notes {
+      display: grid;
+      gap: 12px;
+    }
+
+    .note {
+      padding: 16px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .note.good {
+      background: var(--green-soft);
+      border-color: #cce6da;
+    }
+
+    .note.warn {
+      background: var(--rose-soft);
+      border-color: #efc9c2;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .stage-detail,
+      .errors,
+      .cadence,
+      .simulation-grid,
+      .formula,
+      .detail-grid,
+      .angles-grid {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .meta { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div>Almahal x Llama Leads</div>
+      </div>
+      <div class="meta">Playbook comercial | Seguimiento efectivo</div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Seguimiento que mueve etapas, no que empuja decisiones.</h1>
+        <p class="lead">El seguimiento no debe preguntar “¿ya sabes?” ni “¿ya decidiste?”. Debe aportar valor y hacer una pregunta diseñada para avanzar una sola etapa del pipeline. No se cierra a quien aún no filtró. Primero se califica, luego se conversa, después se calienta y recién ahí se agenda o vende. ✨</p>
+      </div>
+
+      <aside class="card principle">
+        <h2>Fórmula base</h2>
+        <div class="formula">
+          <div>
+            <b>1. Contexto</b>
+            “Me acordé de ti porque vi la agenda / lo que me comentaste...”
+          </div>
+          <div>
+            <b>2. Valor</b>
+            Video, foto, recurso, recomendación, track record o detalle extra.
+          </div>
+          <div>
+            <b>3. Pregunta clave</b>
+            Una pregunta que lo lleve a la siguiente etapa, no al cierre forzado.
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card section">
+      <h2>Errores críticos vs buenas prácticas</h2>
+      <p>El error más fuerte es convertir el seguimiento en presión por decisión. El buen seguimiento crea una nueva razón para responder.</p>
+
+      <div class="errors">
+        <div class="error-box">
+          <h3>❌ Empujar decisión</h3>
+          <ul>
+            <li>“¿Pudiste revisar las opciones?”</li>
+            <li>“¿Ya sabes qué pedir?”</li>
+            <li>“¿Ya sabes cuándo iniciar?”</li>
+            <li>“¿Ya sabes si matricularte?”</li>
+            <li>“Hola, vengo para saber si ya decidiste.”</li>
+          </ul>
+        </div>
+
+        <div class="good-box">
+          <h3>✅ Aportar valor + avanzar etapa</h3>
+          <ul>
+            <li>“Hola, Nombre. Justo estaba revisando la agenda y me acordé de ti...”</li>
+            <li>“Creo que este video/foto/recurso te va a ayudar a visualizar mejor la experiencia...”</li>
+            <li>“Ey, me olvidaba: también tenemos este detalle que puede servirte...”</li>
+            <li>“Solo por curiosidad...” + pregunta clave de la etapa.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Pipeline de seguimiento</h2>
+      <p>Selecciona una etapa. Cada una tiene explicación, objetivo, pregunta clave, ángulos y variantes.</p>
+
+      <div class="pipeline-map" id="pipeline"></div>
+
+      <div class="stage-detail">
+        <div class="panel">
+          <span class="badge" id="stage-label">Etapa 1</span>
+          <h2 id="stage-title">Nuevo Lead</h2>
+          <p id="stage-definition"></p>
+
+          <div class="detail-grid">
+            <div class="mini">
+              <b>Qué significa</b>
+              <p id="stage-meaning"></p>
+            </div>
+            <div class="mini">
+              <b>Objetivo del seguimiento</b>
+              <p id="stage-objective"></p>
+            </div>
+            <div class="mini">
+              <b>Siguiente etapa</b>
+              <p id="stage-next"></p>
+            </div>
+            <div class="mini">
+              <b>No preguntar</b>
+              <p id="stage-avoid"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel questions">
+          <span class="badge">Preguntas clave</span>
+          <div id="stage-questions"></div>
+
+          <span class="badge">Mensaje modelo</span>
+          <div class="script">
+            <strong id="stage-angle"></strong>
+            <p id="stage-script"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Ángulos de seguimiento</h2>
+      <p>Los ángulos son el “por qué te escribo”. Evitan que el mensaje suene a persecución.</p>
+
+      <div class="angles-grid">
+        <div class="angle">
+          <b>📅 Agenda / calendario</b>
+          <p>“Justo estaba revisando la agenda y me acordé de ti...”</p>
+        </div>
+        <div class="angle">
+          <b>🎥 Recurso visual</b>
+          <p>“Creo que este video te puede ayudar a imaginar mejor la experiencia...”</p>
+        </div>
+        <div class="angle">
+          <b>✨ Me olvidaba</b>
+          <p>“Ey, me olvidaba comentarte que también tenemos...”</p>
+        </div>
+        <div class="angle">
+          <b>🌿 Beneficio</b>
+          <p>“Por lo que me contaste del estrés, esta opción te puede ayudar más...”</p>
+        </div>
+        <div class="angle">
+          <b>🏆 Track record</b>
+          <p>“Más de 5,000 personas han vivido la experiencia Almahal...”</p>
+        </div>
+        <div class="angle">
+          <b>🧭 Recomendación experta</b>
+          <p>“No elegiría la opción más básica para ese caso...”</p>
+        </div>
+        <div class="angle">
+          <b>⏳ Urgencia suave</b>
+          <p>“Para este fin de semana aún tenemos algunos cupos...”</p>
+        </div>
+        <div class="angle">
+          <b>🔎 Objeción escondida</b>
+          <p>“¿Hay algo que te gustaría saber sí o sí antes de reservar?”</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Simulaciones de seguimiento</h2>
+      <p>Casos prácticos para entrenar cómo mover una etapa sin sonar insistente.</p>
+
+      <div class="case-tabs">
+        <button class="case-tab active" type="button" data-case="new">Nuevo Lead</button>
+        <button class="case-tab" type="button" data-case="filtered">Lead Filtrado</button>
+        <button class="case-tab" type="button" data-case="response">Lead Respuesta</button>
+        <button class="case-tab" type="button" data-case="conversation">Conversación</button>
+        <button class="case-tab" type="button" data-case="hot">Lead Caliente</button>
+        <button class="case-tab" type="button" data-case="scheduled">Cita Agendada</button>
+        <button class="case-tab" type="button" data-case="attended">Cita Asistida</button>
+        <button class="case-tab" type="button" data-case="client">Nuevo Cliente</button>
+      </div>
+
+      <div class="simulation-grid">
+        <div class="chat" id="case-chat"></div>
+        <aside class="case-notes" id="case-notes"></aside>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Cadencia sugerida</h2>
+      <p>La cadencia debe cambiar según etapa e intención. A más intención, más velocidad. A menos intención, más valor y menos presión.</p>
+
+      <div class="cadence">
+        <div class="cadence-item">
+          <b>Minuto 0</b>
+          <p>Responder rápido, filtrar y evitar mandar solo catálogo.</p>
+        </div>
+        <div class="cadence-item">
+          <b>2-4 horas</b>
+          <p>Si se apagó post catálogo: permiso + curiosidad + pregunta suave.</p>
+        </div>
+        <div class="cadence-item">
+          <b>24 horas</b>
+          <p>Retomar con contexto: motivo, dolor, fecha o beneficio.</p>
+        </div>
+        <div class="cadence-item">
+          <b>48-72 horas</b>
+          <p>Aportar prueba: video, foto, track record o recomendación.</p>
+        </div>
+        <div class="cadence-item">
+          <b>7-15 días</b>
+          <p>Reactivar con nuevo ángulo: ocasión, bienestar, regalo o cupos.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const stages = [
+      {
+        name: 'Nuevo Lead',
+        short: 'Aún no califica',
+        definition: 'Nuevo interesado. Todavía no sabemos si califica, qué busca, para quién es ni si tiene intención real.',
+        meaning: 'Llegó por anuncio, referido, web o WhatsApp. Puede tener interés, curiosidad o solo estar mirando.',
+        objective: 'Conseguir el primer filtro sin intentar cerrar.',
+        next: 'Lead Filtrado',
+        avoid: '“¿Quieres reservar?”, “¿cuándo pagas?”, “te paso métodos de pago”.',
+        angle: 'Ángulo: bienvenida + orden',
+        questions: [
+          ['Modalidad', '¿La experiencia sería para ti, para pareja o para un grupo?'],
+          ['Motivo inicial', '¿Lo buscas más para relajarte, celebrar algo especial o regalar una experiencia?'],
+          ['Sede / ubicación', '¿Te acomoda más Surco o San Isidro?']
+        ],
+        script: 'Hola, Nombre 😊 Qué lindo que estés interesada en Almahal. Para orientarte mejor y no mandarte cualquier opción, primero te pregunto: ¿la experiencia sería para ti, para pareja o para un grupo?'
+      },
+      {
+        name: 'Lead Filtrado',
+        short: 'Cumple criterios',
+        definition: 'Ya sabemos algo básico: modalidad, sede, servicio, ocasión o tipo de experiencia. Todavía falta que responda con intención.',
+        meaning: 'El lead ya no está totalmente frío. Tiene una necesidad posible, pero aún no abrió conversación.',
+        objective: 'Lograr una respuesta que revele motivación o dolor.',
+        next: 'Lead Respuesta',
+        avoid: '“Te mando todos los paquetes”, “elige uno”, “¿cuál quieres?”.',
+        angle: 'Ángulo: recomendación personalizada',
+        questions: [
+          ['Motivación', '¿Lo buscan más para relajarse, celebrar algo especial o regalar una experiencia?'],
+          ['Resultado deseado', '¿Qué te gustaría sentir al salir: descanso, desconexión, alivio o celebración?'],
+          ['Contexto', '¿Es para una fecha especial o para darse un momento de pausa?']
+        ],
+        script: 'Perfecto ✨ Para esa modalidad tenemos opciones muy lindas. Para recomendarte mejor: ¿lo buscan más para relajarse, celebrar algo especial o regalar una experiencia?'
+      },
+      {
+        name: 'Lead Respuesta',
+        short: 'Respondió algo',
+        definition: 'El lead respondió aunque sea con monosílabos: “sí”, “no”, “gracias”, “lo reviso”, “precio”.',
+        meaning: 'Hay una microseñal. El trabajo es convertir una respuesta corta en conversación.',
+        objective: 'Abrir conversación con una pregunta fácil, no pedir decisión.',
+        next: 'Conversación',
+        avoid: '“¿Pudiste revisar?”, “¿ya sabes qué pedir?”, “quedo atenta”.',
+        angle: 'Ángulo: permiso + curiosidad',
+        questions: [
+          ['Primera vez', 'Solo por curiosidad, ¿sería tu primera vez viviendo una experiencia de spa?'],
+          ['Momento', '¿Lo estás viendo para estos días o todavía más adelante?'],
+          ['Elección guiada', '¿Quieres que te ayude a elegir según lo que buscas vivir?']
+        ],
+        script: 'Claro que sí, tómate el tiempo que necesites 😊 Solo por curiosidad, ¿sería tu primera vez en un spa o ya sueles vivir este tipo de experiencias? Así te puedo orientar mejor cuando lo revises.'
+      },
+      {
+        name: 'Conversación',
+        short: 'Ya se abre',
+        definition: 'El lead conversa, detalla motivaciones, dolores, contexto, ocasión o expectativas.',
+        meaning: 'Aquí aparece la “pepita”: información que permite vender de forma consultiva.',
+        objective: 'Explorar dolor/placer, nutrir con valor y detectar intención.',
+        next: 'Lead Caliente',
+        avoid: 'Mandar opciones demasiado rápido o pedir que el lead decida solo.',
+        angle: 'Ángulo: nutrición + profundidad',
+        questions: [
+          ['Dolor', 'Cuando dices estrés, ¿lo sientes más en el cuerpo, en la mente o en la rutina?'],
+          ['Placer', '¿Quieres que se sienta más relajante, celebratorio o premium?'],
+          ['Fecha', '¿Tienes una fecha tentativa para vivir esta experiencia?']
+        ],
+        script: 'Tiene mucho sentido lo que me cuentas 🌿 Para ese caso no elegiría solo por precio, sino por lo que quieres sentir al salir. Almahal tiene más de 7 años ayudando a sanar, relajar y reconectar; por eso te puedo recomendar mejor según tu objetivo.'
+      },
+      {
+        name: 'Lead Caliente',
+        short: 'Quiere avanzar',
+        definition: 'Muestra intención: pide horarios, disponibilidad, métodos de pago, reserva, agenda o siguiente paso.',
+        meaning: 'Ya no necesita más exploración larga. Necesita seguridad, claridad y eliminación de objeciones.',
+        objective: 'Resolver duda final y llevarlo a cita o reserva.',
+        next: 'Cita Agendada',
+        avoid: 'Seguir conversando sin pedir avance o volver a mandar catálogo completo.',
+        angle: 'Ángulo: cupos + objeción final',
+        questions: [
+          ['Duda final', '¿Tienes alguna duda más antes de pasar a la reserva?'],
+          ['Horario', '¿Te acomoda más sábado o domingo? Aún tenemos algunos cupos.'],
+          ['Pago', 'Si está todo claro, ¿te paso los métodos de pago para separar tu horario?']
+        ],
+        script: 'Genial 😊 Para este fin de semana aún tenemos algunos cupos. Por lo que me cuentas, te recomendaría esta experiencia porque calza mejor con lo que buscan. ¿Tienes alguna duda más antes de pasar a la reserva?'
+      },
+      {
+        name: 'Cita Agendada',
+        short: 'Ya separó hora',
+        definition: 'El lead ya agendó cita, visita, clase de prueba o reserva, pero todavía no asiste.',
+        meaning: 'El riesgo ya no es convencer; es evitar no-show y preparar una buena experiencia.',
+        objective: 'Confirmar asistencia y elevar expectativa.',
+        next: 'Cita Asistida',
+        avoid: 'Desaparecer hasta el día de la cita.',
+        angle: 'Ángulo: confirmación + preparación',
+        questions: [
+          ['Confirmación', '¿Te confirmo entonces para el día y horario elegido?'],
+          ['Preparación', '¿Quieres que te comparta recomendaciones para disfrutar mejor la experiencia?'],
+          ['Asistencia', '¿Llegarás sola o acompañada para tener todo listo?']
+        ],
+        script: 'Tu reserva quedó lista ✨ Te esperamos para que puedas desconectar y vivir la experiencia con calma. Te recomiendo llegar unos minutos antes para que todo fluya sin apuro. ¿Quieres que te comparta alguna recomendación previa?'
+      },
+      {
+        name: 'Cita Asistida',
+        short: 'Vivió la visita',
+        definition: 'Asistió a la cita, visita o experiencia, pero todavía no compra, no se matricula o no toma el siguiente paquete.',
+        meaning: 'Ya hay experiencia real. El seguimiento debe conectar con lo que sintió y convertirlo en decisión.',
+        objective: 'Transformar experiencia vivida en compra o siguiente paso.',
+        next: 'Nuevo Cliente',
+        avoid: '“¿Vas a comprar?”, “¿te matriculas?”, “¿ya decidiste?”.',
+        angle: 'Ángulo: experiencia vivida',
+        questions: [
+          ['Sensación', '¿Qué fue lo que más te gustó de la experiencia?'],
+          ['Necesidad', '¿Qué te gustaría mantener o mejorar como parte de tu rutina?'],
+          ['Siguiente paso', '¿Te gustaría que te recomiende la mejor opción para continuar?']
+        ],
+        script: 'Qué lindo que hayas podido vivir la experiencia 😊 Para ayudarte con el siguiente paso: ¿qué fue lo que más te gustó y qué te gustaría mantener como parte de tu rutina de bienestar?'
+      },
+      {
+        name: 'Nuevo Cliente',
+        short: 'Compró',
+        definition: 'Se matricula o compra. Ya no es lead: entra a onboarding, recompra y fidelización.',
+        meaning: 'El objetivo cambia: buena experiencia, recompra, recomendación y relación a largo plazo.',
+        objective: 'Asegurar satisfacción y abrir continuidad/recompra.',
+        next: 'Recompra / Fidelización',
+        avoid: 'Cerrar la relación después del pago.',
+        angle: 'Ángulo: bienvenida + continuidad',
+        questions: [
+          ['Bienvenida', '¿Te gustaría que luego te recomiende una próxima experiencia según cómo te sientas?'],
+          ['Preferencia', '¿Quieres que dejemos anotado si prefieres relajación, energía, piel o desconexión?'],
+          ['Recompra', '¿Te gustaría recibir recomendaciones para mantener este bienestar durante el mes?']
+        ],
+        script: '¡Qué alegría tenerte en Almahal! ✨ Gracias por confiar en la experiencia. Después de tu visita podemos recomendarte una próxima opción según cómo te sientas y lo que quieras trabajar: relajación, energía, piel o desconexión.'
+      }
+    ];
+
+    const pipeline = document.getElementById('pipeline');
+    const refs = {
+      label: document.getElementById('stage-label'),
+      title: document.getElementById('stage-title'),
+      definition: document.getElementById('stage-definition'),
+      meaning: document.getElementById('stage-meaning'),
+      objective: document.getElementById('stage-objective'),
+      next: document.getElementById('stage-next'),
+      avoid: document.getElementById('stage-avoid'),
+      questions: document.getElementById('stage-questions'),
+      angle: document.getElementById('stage-angle'),
+      script: document.getElementById('stage-script')
+    };
+
+    function renderStage(index) {
+      const stage = stages[index];
+      refs.label.textContent = `Etapa ${index + 1}`;
+      refs.title.textContent = stage.name;
+      refs.definition.textContent = stage.definition;
+      refs.meaning.textContent = stage.meaning;
+      refs.objective.textContent = stage.objective;
+      refs.next.textContent = stage.next;
+      refs.avoid.textContent = stage.avoid;
+      refs.angle.textContent = stage.angle;
+      refs.script.textContent = stage.script;
+      refs.questions.innerHTML = stage.questions.map(([label, question]) => `
+        <div class="question-card">
+          <b>${label}</b>
+          <p>${question}</p>
+        </div>
+      `).join('');
+
+      pipeline.querySelectorAll('button').forEach((button, buttonIndex) => {
+        button.classList.toggle('active', buttonIndex === index);
+      });
+    }
+
+    stages.forEach((stage, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'stage-button';
+      button.innerHTML = `<span class="stage-number">${index + 1}</span><b>${stage.name}</b><small>${stage.short} → ${stage.next}</small>`;
+      button.addEventListener('click', () => renderStage(index));
+      pipeline.appendChild(button);
+    });
+
+    renderStage(0);
+
+    const cases = {
+      new: {
+        notes: [
+          ['good', 'Etapa actual', 'Nuevo Lead: escribió o dejó dato, pero aún no sabemos si califica.'],
+          ['good', 'Objetivo', 'Pasarlo a Lead Filtrado con una pregunta simple de modalidad o intención.'],
+          ['warn', 'No hacer', 'No mandar todo el catálogo ni pedir reserva/pago. Primero se filtra.']
+        ],
+        chat: [
+          ['day', 'Lunes 10:12 a. m.'],
+          ['client', '10:12 a. m.', 'Hola, quisiera información.'],
+          ['advisor', '10:14 a. m.', '¡Hola, Nombre! 😊 Claro que sí, te ayudo encantada. Para orientarte mejor y no mandarte cualquier opción: ¿la experiencia sería para ti, para pareja o para un grupo?'],
+          ['day', 'Sin respuesta por 3 horas'],
+          ['advisor', '1:24 p. m.', 'Nombre, justo estaba ordenando las opciones y me acordé de ti ✨ Si me dices si sería para ti, pareja o grupo, te puedo mandar la alternativa que mejor calce y no llenarte de información de más.']
+        ]
+      },
+      filtered: {
+        notes: [
+          ['good', 'Etapa actual', 'Lead Filtrado: ya dijo pareja/grupo/sede, pero no reveló motivación.'],
+          ['good', 'Objetivo', 'Pasarlo a Lead Respuesta con una pregunta que capture intención.'],
+          ['warn', 'No hacer', 'No decir “ya sabes cuál paquete quieres?”. Aún falta motivo.']
+        ],
+        chat: [
+          ['day', 'Martes 4:05 p. m.'],
+          ['client', '4:05 p. m.', 'Sería para pareja.'],
+          ['advisor', '4:07 p. m.', 'Perfecto ✨ Para pareja tenemos experiencias muy lindas. ¿Lo buscan más para relajarse juntos, celebrar algo especial o regalarse un momento diferente?'],
+          ['day', 'Sin respuesta por 2 horas'],
+          ['advisor', '6:18 p. m.', 'Nombre, me acordé de ti porque justo vi un video del ambiente de pareja que ayuda mucho a visualizar la experiencia 🎥 ¿Lo están pensando más como plan de relajación o como celebración?']
+        ]
+      },
+      response: {
+        notes: [
+          ['good', 'Etapa actual', 'Lead Respuesta: contestó corto o dijo “lo reviso”.'],
+          ['good', 'Objetivo', 'Pasarlo a Conversación con permiso + curiosidad.'],
+          ['warn', 'No hacer', 'No preguntar “¿pudiste revisar?” o “¿ya sabes qué pedir?”.']
+        ],
+        chat: [
+          ['day', 'Miércoles 11:30 a. m.'],
+          ['advisor', '11:30 a. m.', 'Te comparto los planes y el catálogo para que puedas revisarlos con calma ✨'],
+          ['client', '11:42 a. m.', 'Ok gracias, lo reviso.'],
+          ['day', 'Sin respuesta por 4 horas'],
+          ['advisor', '3:47 p. m.', 'Claro que sí, tómate el tiempo que necesites 😊 Solo por curiosidad, ¿sería su primera vez viviendo una experiencia de spa o ya suelen hacerlo? Así puedo ayudarte a elegir mejor cuando lo revises.']
+        ]
+      },
+      conversation: {
+        notes: [
+          ['good', 'Etapa actual', 'Conversación: el lead ya contó dolor, motivación o contexto.'],
+          ['good', 'Objetivo', 'Pasarlo a Lead Caliente detectando fecha, intención o siguiente paso.'],
+          ['warn', 'No hacer', 'No cortar la conversación con catálogo. Nutrir y preguntar por momento de compra.']
+        ],
+        chat: [
+          ['day', 'Jueves 9:20 a. m.'],
+          ['client', '9:20 a. m.', 'La verdad busco algo para desconectarme. Estoy con mucho estrés del trabajo y siento tensión en cuello y espalda.'],
+          ['advisor', '9:24 a. m.', 'Tiene muchísimo sentido 🌿 Para ese tipo de estrés no elegiría solo un masaje rápido; funciona mejor una experiencia con agua, calor y masaje para que cuerpo y mente bajen revoluciones.'],
+          ['day', 'Sin respuesta por 5 horas'],
+          ['advisor', '2:31 p. m.', 'Nombre, justo me acordé de lo que me contaste del cuello y espalda. Te dejo este video para que veas el ambiente y cómo se vive el ritual. ¿Lo estabas pensando para esta semana o todavía más adelante?']
+        ]
+      },
+      hot: {
+        notes: [
+          ['good', 'Etapa actual', 'Lead Caliente: quiere horario, fecha, disponibilidad o método de pago.'],
+          ['good', 'Objetivo', 'Pasarlo a Cita Agendada/reserva resolviendo la última duda.'],
+          ['warn', 'No hacer', 'No seguir explorando de más. Ya toca facilitar el avance.']
+        ],
+        chat: [
+          ['day', 'Viernes 5:18 p. m.'],
+          ['client', '5:18 p. m.', 'Me interesa para este sábado. ¿Tienen horarios?'],
+          ['advisor', '5:20 p. m.', 'Genial 😊 Para este sábado aún tenemos algunos cupos. Por lo que me contaste, te recomendaría el ritual completo porque se siente más especial y no se queda solo en masaje.'],
+          ['day', 'Sin respuesta por 45 minutos'],
+          ['advisor', '6:06 p. m.', 'Nombre, justo estoy revisando agenda. Antes de separarte horario, ¿tienes alguna duda sobre duración, privacidad o qué incluye? Si está todo claro, te paso los cupos disponibles y métodos de pago.']
+        ]
+      },
+      scheduled: {
+        notes: [
+          ['good', 'Etapa actual', 'Cita Agendada: ya tiene horario o reserva pendiente de asistir.'],
+          ['good', 'Objetivo', 'Pasarlo a Cita Asistida reduciendo no-show y elevando expectativa.'],
+          ['warn', 'No hacer', 'No desaparecer hasta el día de la cita.']
+        ],
+        chat: [
+          ['day', 'Sábado 8:40 p. m.'],
+          ['advisor', '8:40 p. m.', 'Listo, Nombre ✨ Tu reserva queda para mañana a las 5:00 p. m. en San Isidro.'],
+          ['day', 'Día de la cita - Domingo 10:15 a. m.'],
+          ['advisor', '10:15 a. m.', '¡Hola, Nombre! Te esperamos hoy para vivir tu experiencia en Almahal 🌿 Te recomiendo llegar 10 minutos antes para que todo fluya sin apuro. ¿Quieres que te mande la ubicación exacta y recomendaciones previas?']
+        ]
+      },
+      attended: {
+        notes: [
+          ['good', 'Etapa actual', 'Cita Asistida: vivió la experiencia, pero todavía no compra/renueva/toma paquete.'],
+          ['good', 'Objetivo', 'Pasarlo a Nuevo Cliente o recompra conectando con lo que sintió.'],
+          ['warn', 'No hacer', 'No preguntar frío “¿vas a comprar?” o “¿te matriculas?”.']
+        ],
+        chat: [
+          ['day', 'Lunes 7:15 p. m.'],
+          ['advisor', '7:15 p. m.', 'Nombre, qué lindo que hayas podido vivir la experiencia hoy 😊 Espero que hayas salido más ligera y desconectada.'],
+          ['day', 'Sin respuesta hasta el día siguiente'],
+          ['advisor', 'Martes 10:22 a. m.', 'Me acordé de ti porque ayer comentaste que venías con bastante carga del trabajo. ¿Qué fue lo que más sentiste después del ritual: alivio físico, descanso mental o ganas de mantener este espacio más seguido?']
+        ]
+      },
+      client: {
+        notes: [
+          ['good', 'Etapa actual', 'Nuevo Cliente: ya compró o se matriculó.'],
+          ['good', 'Objetivo', 'Abrir fidelización/recompra y no cerrar la relación en el pago.'],
+          ['warn', 'No hacer', 'No desaparecer después de vender. La experiencia recién empieza.']
+        ],
+        chat: [
+          ['day', 'Día de compra - Martes 4:35 p. m.'],
+          ['advisor', '4:35 p. m.', '¡Qué alegría tenerte en Almahal, Nombre! ✨ Gracias por confiar en la experiencia.'],
+          ['day', '48 horas después'],
+          ['advisor', 'Jueves 11:05 a. m.', 'Nombre, me acordé de ti porque después de la primera experiencia suele ser buen momento para definir qué quieres mantener: relajación, piel, energía o desconexión. ¿Te gustaría que luego te recomiende una próxima experiencia según cómo te sientas?']
+        ]
+      }
+    };
+
+    const caseChat = document.getElementById('case-chat');
+    const caseNotes = document.getElementById('case-notes');
+
+    function renderCase(key) {
+      const item = cases[key];
+      caseChat.innerHTML = item.chat.map((row) => {
+        if (row[0] === 'day') {
+          return `<div class="day-divider">${row[1]}</div>`;
+        }
+        const [who, time, text] = row;
+        return `<div class="msg ${who}"><div class="time">${time}</div><div class="bubble">${text}</div></div>`;
+      }).join('');
+      caseNotes.innerHTML = item.notes.map(([kind, title, text]) => `
+        <div class="note ${kind}">
+          <span class="badge">${title}</span>
+          <p>${text}</p>
+        </div>
+      `).join('');
+      document.querySelectorAll('.case-tab').forEach((button) => {
+        button.classList.toggle('active', button.dataset.case === key);
+      });
+    }
+
+    document.querySelectorAll('.case-tab').forEach((button) => {
+      button.addEventListener('click', () => renderCase(button.dataset.case));
+    });
+
+    renderCase('review');
+  </script>
+</body>
+</html>

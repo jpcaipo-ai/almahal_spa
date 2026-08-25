@@ -1515,12 +1515,13 @@ tbody tr:hover { background: var(--soft); }
 
 .pipeline-row {
   display: grid;
-  grid-template-columns: minmax(112px, 0.85fr) minmax(120px, 1.5fr) 44px;
+  grid-template-columns: minmax(112px, 0.85fr) minmax(120px, 1.5fr) 54px 54px;
   align-items: center;
   gap: 10px;
 }
 
 .pipeline-row div {
+  position: relative;
   height: 14px;
   overflow: hidden;
   border-radius: 999px;
@@ -1534,10 +1535,38 @@ tbody tr:hover { background: var(--soft); }
   background: linear-gradient(90deg, #b7995c, #075c49);
 }
 
-.pipeline-row strong {
+.pipeline-row div b {
+  position: absolute;
+  inset: 0 7px 0 auto;
+  display: flex;
+  align-items: center;
+  color: #24160f;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.pipeline-row strong,
+.pipeline-row em,
+.pipeline-row-head b {
   color: var(--ink);
   font-size: 12px;
+  font-style: normal;
   text-align: right;
+}
+
+.pipeline-row-head {
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(225, 212, 191, 0.75);
+}
+
+.pipeline-row-head span,
+.pipeline-row-head b,
+.pipeline-row-head strong,
+.pipeline-row-head em {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .pipeline-row.is-conversation i { background: linear-gradient(90deg, #d0aa56, #b7792f); }
@@ -1872,7 +1901,7 @@ tbody tr:hover { background: var(--soft); }
   .june-yoy-drivers em { text-align: left; }
   .quality-filterbar, .quality-kpis, .quality-extra-kpis, .correlation-grid, .advisor-highlights, .advisor-driver-grid, .pipeline-kpis { grid-template-columns: 1fr; }
   .pipeline-insight { grid-template-columns: 1fr; }
-  .pipeline-row { grid-template-columns: 98px minmax(90px, 1fr) 36px; }
+  .pipeline-row { grid-template-columns: 98px minmax(90px, 1fr) 44px 44px; }
   .exec-readout summary { align-items: flex-start; flex-direction: column; }
   .quality-donuts { grid-template-columns: 1fr; }
   .quality-rank-row { grid-template-columns: 24px minmax(80px, 120px) 1fr; }

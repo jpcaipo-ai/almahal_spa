@@ -67,8 +67,19 @@ const pipelineSubaccounts = [
   {
     name: 'Almahal San Isidro',
     scope: 'Subcuenta sede',
-    source: 'pendiente export/captura',
-    stages: []
+    source: 'captura 25/08',
+    stages: [
+      ['Nuevo lead', 538],
+      ['Responde sede', 50],
+      ['Lead calificado', 50],
+      ['Respuesta superficial', 50],
+      ['Conversación calificada', 50],
+      ['Venta potencial', 50],
+      ['Pendiente de pago', 49],
+      ['Pendiente boleta', 49],
+      ['Nuevo cliente', 49],
+      ['Ganado', 49]
+    ]
   },
   {
     name: 'Almahal Surco',
@@ -2123,15 +2134,20 @@ function renderPipelineDashboard() {
             <div><span>Ganadas</span><strong>${number.format(account.won)}</strong><small>${escapeHtml(closeLabel)}</small></div>
           </div>
           <div class="pipeline-bars">
-            ${account.stages.map(([label, value]) => {
+            <div class="pipeline-row pipeline-row-head"><span>Etapa</span><b>Volumen</b><strong>Acum.</strong><em>Paso</em></div>
+            ${account.stages.map(([label, value], index) => {
               const width = Math.max(3, Number(value || 0) / max * 100);
               const normalizedLabel = normalizeText(label);
               const isConversation = normalizedLabel.includes('conversacion');
               const isWon = normalizedLabel === 'ganado';
+              const previous = index ? Number(account.stages[index - 1][1] || 0) : Number(value || 0);
+              const cumulative = account.total ? Number(value || 0) / account.total : 0;
+              const step = previous ? Number(value || 0) / previous : 0;
               return `<div class="pipeline-row ${isConversation ? 'is-conversation' : ''} ${isWon ? 'is-won' : ''}">
                 <span>${escapeHtml(label)}</span>
-                <div><i style="width:${width.toFixed(2)}%"></i></div>
-                <strong>${number.format(value)}</strong>
+                <div><i style="width:${width.toFixed(2)}%"></i><b>${number.format(value)}</b></div>
+                <strong>${percent.format(cumulative)}</strong>
+                <em>${percent.format(step)}</em>
               </div>`;
             }).join('')}
           </div>

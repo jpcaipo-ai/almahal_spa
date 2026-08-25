@@ -47,6 +47,47 @@ const shortDate = new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: '2-d
 const dayOrder = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
 const palette = ['#6f6a3d', '#b7995c', '#7a5f52', '#9c8d63', '#8e3f31', '#b8a780'];
 const customerSuccessAdvisors = new Set(['Antonelly Alvarado', 'Melanie Lopez Anaya']);
+const pipelineSubaccounts = [
+  {
+    name: 'Almahal Spa',
+    scope: 'Meta · Web · Instagram',
+    source: 'captura 25/08',
+    stages: [
+      ['Nuevo lead', 2813],
+      ['Responde sede', 1206],
+      ['Lead calificado', 1179],
+      ['Respuesta', 213],
+      ['Conversación', 208],
+      ['Venta potencial', 194],
+      ['Pendiente de pago', 159],
+      ['Nuevo cliente', 158],
+      ['Ganado', 154]
+    ]
+  },
+  {
+    name: 'Almahal San Isidro',
+    scope: 'Subcuenta sede',
+    source: 'pendiente export/captura',
+    stages: []
+  },
+  {
+    name: 'Almahal Surco',
+    scope: 'Subcuenta sede',
+    source: 'captura 25/08',
+    stages: [
+      ['Nuevo lead', 899],
+      ['Responde sede', 37],
+      ['Lead calificado', 37],
+      ['Respuesta superficial', 37],
+      ['Conversación calificada', 37],
+      ['Venta potencial', 36],
+      ['Pendiente de pago', 36],
+      ['Pendiente boleta', 35],
+      ['Nuevo cliente', 35],
+      ['Ganado', 34]
+    ]
+  }
+];
 
 function uniqueSorted(records, key) {
   return [...new Set(records.map(r => r[key]).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), 'es'));
@@ -2018,6 +2059,92 @@ function renderQualityDashboard(records) {
   ], tableRows);
 }
 
+function pipelineStageValue(account, matcher) {
+  const row = account.stages.find(([label]) => matcher(normalizeText(label)));
+  return row ? Number(row[1] || 0) : 0;
+}
+
+function renderPipelineDashboard() {
+  const el = document.querySelector('#pipelineDashboard');
+  if (!el) return;
+  const accounts = pipelineSubaccounts.map(account => {
+    const total = account.stages[0]?.[1] || 0;
+    const conversation = pipelineStageValue(account, label => label.includes('conversacion'));
+    const pending = account.stages
+      .filter(([label]) => normalizeText(label).includes('pendiente'))
+      .reduce((acc, [, value]) => acc + Number(value || 0), 0);
+    const won = pipelineStageValue(account, label => label === 'ganado');
+    const moveRate = total ? conversation / total : 0;
+    const closeFromConversation = conversation ? won / conversation : 0;
+    return { ...account, total, conversation, pending, won, moveRate, closeFromConversation };
+  });
+  const withData = accounts.filter(account => account.stages.length);
+  const totalLeads = withData.reduce((acc, account) => acc + account.total, 0);
+  const totalConversation = withData.reduce((acc, account) => acc + account.conversation, 0);
+  const totalWon = withData.reduce((acc, account) => acc + account.won, 0);
+  const bestMover = [...withData].sort((a, b) => b.moveRate - a.moveRate)[0];
+  const bottleneck = [...withData].sort((a, b) => a.moveRate - b.moveRate)[0];
+  const cards = [
+    ['Leads medidos', number.format(totalLeads), 'Nuevo lead visible en capturas'],
+    ['Llegan a conversación', percent.format(totalLeads ? totalConversation / totalLeads : 0), `${number.format(totalConversation)} oportunidades`],
+    ['Cierre desde conversación', percent.format(totalConversation ? totalWon / totalConversation : 0), `${number.format(totalWon)} ganadas`],
+    ['Mejor movimiento', bestMover ? bestMover.name : 'Pendiente', bestMover ? `${percent.format(bestMover.moveRate)} llega a conversación` : 'sin data']
+  ];
+
+  el.innerHTML = `
+    <div class="pipeline-kpis">
+      ${cards.map(([label, value, note]) => `<article>
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+        <small>${escapeHtml(note)}</small>
+      </article>`).join('')}
+    </div>
+    <div class="pipeline-grid">
+      ${accounts.map(account => {
+        if (!account.stages.length) {
+          return `<article class="pipeline-card empty-pipeline">
+            <div class="pipeline-card-head">
+              <div><span>${escapeHtml(account.scope)}</span><strong>${escapeHtml(account.name)}</strong></div>
+              <em>${escapeHtml(account.source)}</em>
+            </div>
+            <p>Falta export o captura completa del embudo. Este bloque queda reservado para medir si la subcuenta mueve oportunidades desde conversación hacia pago y cliente.</p>
+          </article>`;
+        }
+        const max = Math.max(...account.stages.map(([, value]) => Number(value || 0)), 1);
+        const conversationLabel = account.conversation ? `${percent.format(account.moveRate)} llegan a conversación` : 'sin conversación';
+        const closeLabel = account.conversation ? `${percent.format(account.closeFromConversation)} de conversación a ganado` : 'sin base';
+        return `<article class="pipeline-card">
+          <div class="pipeline-card-head">
+            <div><span>${escapeHtml(account.scope)}</span><strong>${escapeHtml(account.name)}</strong></div>
+            <em>${escapeHtml(account.source)}</em>
+          </div>
+          <div class="pipeline-snapshot">
+            <div><span>Conversación+</span><strong>${number.format(account.conversation)}</strong><small>${escapeHtml(conversationLabel)}</small></div>
+            <div><span>Ganadas</span><strong>${number.format(account.won)}</strong><small>${escapeHtml(closeLabel)}</small></div>
+          </div>
+          <div class="pipeline-bars">
+            ${account.stages.map(([label, value]) => {
+              const width = Math.max(3, Number(value || 0) / max * 100);
+              const normalizedLabel = normalizeText(label);
+              const isConversation = normalizedLabel.includes('conversacion');
+              const isWon = normalizedLabel === 'ganado';
+              return `<div class="pipeline-row ${isConversation ? 'is-conversation' : ''} ${isWon ? 'is-won' : ''}">
+                <span>${escapeHtml(label)}</span>
+                <div><i style="width:${width.toFixed(2)}%"></i></div>
+                <strong>${number.format(value)}</strong>
+              </div>`;
+            }).join('')}
+          </div>
+        </article>`;
+      }).join('')}
+    </div>
+    <div class="pipeline-insight">
+      <strong>Novedad para sesión semanal:</strong>
+      <span>${bottleneck ? `${escapeHtml(bottleneck.name)} muestra el mayor cuello de botella visible: solo ${percent.format(bottleneck.moveRate)} de nuevos leads llega a conversación. La gestión semanal debería mirar cuántas oportunidades pasan de conversación a venta potencial, pago y ganado.` : 'Necesitamos export completo de pipeline por subcuenta para medir movimiento real.'}</span>
+    </div>
+  `;
+}
+
 function lifecycleSalesBreakdown(records) {
   const currentTx = transactionRows(records);
   const lifecycleByTx = classifyTransactionsByLifecycle(records);
@@ -2506,6 +2633,7 @@ function renderDashboard() {
 
   renderAdvisorRoom(records);
   renderQualityDashboard(records);
+  renderPipelineDashboard();
   renderCustomerGrowth(records);
   renderQueryAssistant();
 

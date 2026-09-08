@@ -51,51 +51,51 @@ const pipelineSubaccounts = [
   {
     name: 'Almahal Spa',
     scope: 'Meta · Web · Instagram',
-    source: 'captura 31/08',
+    source: 'captura 08/09',
     stages: [
-      ['Nuevo lead', 3654],
-      ['Responde sede', 1678],
-      ['Lead calificado', 1650],
-      ['Respuesta', 248],
-      ['Conversación', 241],
-      ['Venta potencial', 226],
-      ['Pendiente de pago', 185],
-      ['Nuevo cliente', 183],
-      ['Ganado', 178]
+      ['Nuevo lead', 1079],
+      ['Responde sede', 631],
+      ['Lead calificado', 628],
+      ['Respuesta', 32],
+      ['Conversación', 31],
+      ['Venta potencial', 30],
+      ['Pendiente de pago', 29],
+      ['Nuevo cliente', 29],
+      ['Ganado', 28]
     ]
   },
   {
     name: 'Almahal San Isidro',
     scope: 'Subcuenta sede',
-    source: 'captura 31/08',
+    source: 'captura 08/09',
     stages: [
-      ['Nuevo lead', 671],
-      ['Responde sede', 59],
-      ['Lead calificado', 59],
-      ['Respuesta superficial', 59],
-      ['Conversación calificada', 59],
-      ['Venta potencial', 59],
-      ['Pendiente de pago', 58],
-      ['Pendiente boleta', 58],
-      ['Nuevo cliente', 58],
-      ['Ganado', 58]
+      ['Nuevo lead', 150],
+      ['Responde sede', 10],
+      ['Lead calificado', 10],
+      ['Respuesta superficial', 10],
+      ['Conversación calificada', 10],
+      ['Venta potencial', 10],
+      ['Pendiente de pago', 10],
+      ['Pendiente boleta', 10],
+      ['Nuevo cliente', 10],
+      ['Ganado', 10]
     ]
   },
   {
     name: 'Almahal Surco',
     scope: 'Subcuenta sede',
-    source: 'captura 31/08',
+    source: 'captura 08/09',
     stages: [
-      ['Nuevo lead', 629],
-      ['Responde sede', 31],
-      ['Lead calificado', 31],
-      ['Respuesta superficial', 31],
-      ['Conversación calificada', 31],
-      ['Venta potencial', 31],
-      ['Pendiente de pago', 31],
-      ['Pendiente boleta', 31],
-      ['Nuevo cliente', 31],
-      ['Ganado', 31]
+      ['Nuevo lead', 153],
+      ['Responde sede', 7],
+      ['Lead calificado', 7],
+      ['Respuesta superficial', 7],
+      ['Conversación calificada', 7],
+      ['Venta potencial', 7],
+      ['Pendiente de pago', 7],
+      ['Pendiente boleta', 7],
+      ['Nuevo cliente', 7],
+      ['Ganado', 7]
     ]
   }
 ];

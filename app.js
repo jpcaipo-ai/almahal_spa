@@ -51,51 +51,49 @@ const pipelineSubaccounts = [
   {
     name: 'Almahal Spa',
     scope: 'Meta · Web · Instagram',
-    source: 'captura 08/09',
+    source: 'captura 13/10',
     stages: [
-      ['Nuevo lead', 1079],
-      ['Responde sede', 631],
-      ['Lead calificado', 628],
-      ['Respuesta', 32],
-      ['Conversación', 31],
-      ['Venta potencial', 30],
-      ['Pendiente de pago', 29],
-      ['Nuevo cliente', 29],
-      ['Ganado', 28]
+      ['Nuevo lead', 1906],
+      ['Responde sede', 834],
+      ['Lead calificado', 820],
+      ['Respuesta', 64],
+      ['Conversación', 64],
+      ['Venta potencial', 60],
+      ['Pendiente de pago', 49],
+      ['Nuevo cliente', 49],
+      ['Ganado', 49]
     ]
   },
   {
     name: 'Almahal San Isidro',
     scope: 'Subcuenta sede',
-    source: 'captura 08/09',
+    source: 'captura 13/10',
     stages: [
-      ['Nuevo lead', 150],
-      ['Responde sede', 10],
-      ['Lead calificado', 10],
-      ['Respuesta superficial', 10],
-      ['Conversación calificada', 10],
-      ['Venta potencial', 10],
-      ['Pendiente de pago', 10],
-      ['Pendiente boleta', 10],
-      ['Nuevo cliente', 10],
-      ['Ganado', 10]
+      ['Nuevo lead', 130],
+      ['Responde sede', 4],
+      ['Lead calificado', 4],
+      ['Respuesta superficial', 4],
+      ['Conversación calificada', 4],
+      ['Venta potencial', 4],
+      ['Pendiente de pago', 4],
+      ['Nuevo cliente', 4],
+      ['Ganado', 4]
     ]
   },
   {
     name: 'Almahal Surco',
     scope: 'Subcuenta sede',
-    source: 'captura 08/09',
+    source: 'captura 13/10',
     stages: [
-      ['Nuevo lead', 153],
-      ['Responde sede', 7],
-      ['Lead calificado', 7],
-      ['Respuesta superficial', 7],
-      ['Conversación calificada', 7],
-      ['Venta potencial', 7],
-      ['Pendiente de pago', 7],
-      ['Pendiente boleta', 7],
-      ['Nuevo cliente', 7],
-      ['Ganado', 7]
+      ['Nuevo lead', 297],
+      ['Responde sede', 5],
+      ['Lead calificado', 5],
+      ['Respuesta superficial', 5],
+      ['Conversación calificada', 5],
+      ['Venta potencial', 4],
+      ['Pendiente de pago', 3],
+      ['Nuevo cliente', 3],
+      ['Ganado', 3]
     ]
   }
 ];

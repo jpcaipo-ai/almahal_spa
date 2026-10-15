@@ -15,6 +15,7 @@ const state = {
   focusAdvisor: '',
   dailyCompare: 'both',
   monthTrendSegment: 'total',
+  monthlyTarget: 240000,
   view: 'review',
   ask: ''
 };
@@ -531,7 +532,7 @@ function renderIncrementalImpact() {
 function renderTargetPacing(records) {
   const el = document.querySelector('#targetPacing');
   if (!el) return;
-  const monthlyTarget = 300000;
+  const monthlyTarget = Number(state.monthlyTarget) || 240000;
   const dailyFloor = 8000;
   const dates = uniqueSorted(records, 'fecha');
   if (!dates.length) {
@@ -564,8 +565,14 @@ function renderTargetPacing(records) {
 
   el.innerHTML = `
     <article class="target-main-card ${targetStatus}">
+      <div class="target-title-row">
+        <label class="target-kicker" for="monthlyTargetSelect">Meta mensual</label>
+        <select id="monthlyTargetSelect" aria-label="Elegir meta mensual">
+          <option value="240000" ${monthlyTarget === 240000 ? 'selected' : ''}>S/ 240 mil · corregida</option>
+          <option value="270000" ${monthlyTarget === 270000 ? 'selected' : ''}>S/ 270 mil · final</option>
+        </select>
+      </div>
       <div>
-        <span class="target-kicker">Meta mensual</span>
         <strong>${money.format(monthRevenue)}</strong>
         <small>${periodLabel}</small>
       </div>
@@ -706,6 +713,10 @@ function renderMayBenchmark(records) {
       }).join('')}
     </div>
   `;
+  el.querySelector('#monthlyTargetSelect')?.addEventListener('change', event => {
+    state.monthlyTarget = Number(event.target.value);
+    renderDashboard();
+  });
 }
 
 function monthOffset(monthValue, offset) {
@@ -1023,12 +1034,16 @@ function lifecycleColor(key) {
 function renderExecutiveSummaryCards(records) {
   const el = document.querySelector('#executiveSummaryCards');
   if (!el) return;
-  const compare = comparableRecordsForCurrent(records);
-  const lifecycleCompareRows = lifecycleSalesBreakdown(sameMonthLastYearRecords(records));
+  const scope = comparableScopeRecords();
+  const activeMonth = state.mes !== 'all' ? state.mes : uniqueSorted(records, 'mes').at(-1);
+  const monthRows = records.filter(row => row.mes === activeMonth);
+  const monthEndDay = Number(uniqueSorted(monthRows, 'fecha').at(-1)?.slice(-2) || 0);
+  const previousMonth = activeMonth ? `${Number(activeMonth.slice(0, 4)) - 1}${activeMonth.slice(4)}` : '';
+  const compare = scope.filter(row => row.mes === previousMonth && Number(row.fecha.slice(-2)) <= monthEndDay);
+  const lifecycleCompareRows = lifecycleSalesBreakdown(compare);
   const lifecycleCompareByKey = new Map(lifecycleCompareRows.map(row => [row.key, row]));
-  const lifecycle = lifecycleSalesBreakdown(records);
-  const totalRevenue = sum(records);
-  const storeCards = aggregate(records, row => row.sede)
+  const lifecycle = lifecycleSalesBreakdown(monthRows);
+  const storeCards = aggregate(monthRows, row => row.sede)
     .sort((a, b) => String(a.name).localeCompare(String(b.name), 'es'))
     .map(item => {
       const lyRows = compare.filter(row => row.sede === item.name);
@@ -1063,6 +1078,45 @@ function renderExecutiveSummaryCards(records) {
     offset = end;
     return `${lifecycleColor(row.key)} ${Math.max(0, start * 100).toFixed(2)}% ${Math.min(100, end * 100).toFixed(2)}%`;
   }).join(', ');
+  const mayRows = scope.filter(row => row.mes === '2026-05');
+  const mayMixRows = lifecycleSalesBreakdown(mayRows);
+  const mayMixTotal = mayMixRows.reduce((acc, row) => acc + row.venta, 0);
+  const mayMix = new Map(mayMixRows.map(row => [row.key, mayMixTotal ? row.venta / mayMixTotal : 0]));
+  const actualLifecycle = new Map(lifecycleSalesBreakdown(monthRows).map(row => [row.key, row]));
+  const goalStages = [
+    ['nuevo', 'Nuevos'],
+    ['continuidad', 'Continuidad'],
+    ['reactivacion', 'Reactivación'],
+    ['resurreccion', 'Resurrección']
+  ];
+  const lifecycleGoals = goalStages.map(([key, label]) => ({
+    key,
+    label,
+    mix: mayMix.get(key) || 0,
+    actual: actualLifecycle.get(key)?.venta || 0
+  }));
+  for (const goal of [240000, 270000]) {
+    let allocated = 0;
+    lifecycleGoals.forEach((row, index) => {
+      const amount = index === lifecycleGoals.length - 1
+        ? goal - allocated
+        : Math.round(goal * row.mix * 100) / 100;
+      row[`goal${goal}`] = amount;
+      allocated += amount;
+    });
+  }
+  const goalTable = `<div class="lifecycle-goal-wrap">
+    <div class="lifecycle-goal-heading"><strong>Objetivo por ciclo de vida</strong><small>Mix de mayo 2026 (${money2.format(mayMixTotal)}) · avance de ${escapeHtml(activeMonth || 'periodo actual')}</small></div>
+    <div class="lifecycle-goal-table">
+      <div class="lifecycle-goal-row lifecycle-goal-header"><span>Etapa</span><span>Mix mayo</span><span>Avance actual</span><span>Meta S/240 mil</span><span>Meta S/270 mil</span></div>
+      ${lifecycleGoals.map(row => `<div class="lifecycle-goal-row lifecycle-${row.key}">
+        <strong>${row.label}</strong><span>${percent.format(row.mix)}</span><span>${money2.format(row.actual)}</span>
+        <span>${money2.format(row.goal240000)}<small>faltan ${money2.format(Math.max(0, row.goal240000 - row.actual))}</small></span>
+        <span>${money2.format(row.goal270000)}<small>faltan ${money2.format(Math.max(0, row.goal270000 - row.actual))}</small></span>
+      </div>`).join('')}
+    </div>
+    <p>Mix basado en mayo, el mes más cercano a S/ 300 mil. La meta corregida de S/ 240 mil es operativa; S/ 270 mil queda como estiramiento.</p>
+  </div>`;
   el.innerHTML = `${storeCards.map(card => `<article class="exec-summary-card">
       <span class="exec-summary-kicker">${escapeHtml(card.title)}</span>
       <strong>${money2.format(card.revenue)}</strong>
@@ -1093,6 +1147,7 @@ function renderExecutiveSummaryCards(records) {
           <i><b style="width:${Math.max(4, row.share * 100).toFixed(1)}%"></b></i>
         </div>`).join('')}
       </div>
+      ${goalTable}
     </article>`;
 }
 
